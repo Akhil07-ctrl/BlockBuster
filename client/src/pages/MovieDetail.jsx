@@ -1,24 +1,38 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useLocation } from '../context/LocationContext';
 import { fetchMovieById } from '../api';
 import { Calendar, Clock, Star, Film } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const MovieDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const { selectedCity } = useLocation();
     const [movie, setMovie] = useState(null);
+    const [initialCity, setInitialCity] = useState(null);
 
     useEffect(() => {
         const getMovie = async () => {
             try {
                 const { data } = await fetchMovieById(id);
                 setMovie(data);
+                if (!initialCity && selectedCity) {
+                    setInitialCity(selectedCity.slug);
+                }
             } catch (err) {
                 console.error(err);
             }
         };
         getMovie();
     }, [id]);
+
+    // Navigate to home when city changes
+    useEffect(() => {
+        if (initialCity && selectedCity && selectedCity.slug !== initialCity) {
+            navigate('/');
+        }
+    }, [selectedCity, initialCity, navigate]);
 
     if (!movie) return <div className="p-10 text-center">Loading...</div>;
 

@@ -1,12 +1,26 @@
 const Movie = require('../models/Movie');
+const City = require('../models/City');
 const asyncHandler = require('../middleware/asyncHandler');
 const slugify = require('slugify');
 
-// @desc    Get all movies
-// @route   GET /api/movies
+// @desc    Get all movies (optionally filtered by city)
+// @route   GET /api/movies?city=slug
 // @access  Public
 const getMovies = asyncHandler(async (req, res) => {
-    const movies = await Movie.find({});
+    const { city } = req.query;
+    let query = {};
+
+    // Note: Movies are typically not city-specific, but we keep this for consistency
+    // If you want city-specific movies, add city field to Movie model
+    if (city) {
+        const cityDoc = await City.findOne({ slug: city });
+        if (cityDoc && cityDoc._id) {
+            // For now, return all movies since Movie model doesn't have city field
+            // If you add city field to Movie model, uncomment: query.city = cityDoc._id;
+        }
+    }
+
+    const movies = await Movie.find(query);
     res.json(movies);
 });
 

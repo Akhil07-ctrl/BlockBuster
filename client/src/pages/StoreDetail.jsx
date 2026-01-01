@@ -1,18 +1,25 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useLocation } from '../context/LocationContext';
 import { fetchStoreById } from '../api';
 import { MapPin, Phone, Clock, ExternalLink, Tag } from 'lucide-react';
 
 const StoreDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const { selectedCity } = useLocation();
     const [store, setStore] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [initialCity, setInitialCity] = useState(null);
 
     useEffect(() => {
         const getStore = async () => {
             try {
                 const { data } = await fetchStoreById(id);
                 setStore(data);
+                if (!initialCity && data.city) {
+                    setInitialCity(data.city.slug);
+                }
             } catch (err) {
                 console.error(err);
             } finally {
@@ -21,6 +28,13 @@ const StoreDetail = () => {
         };
         getStore();
     }, [id]);
+
+    // Navigate to home when city changes
+    useEffect(() => {
+        if (initialCity && selectedCity && selectedCity.slug !== initialCity) {
+            navigate('/');
+        }
+    }, [selectedCity, initialCity, navigate]);
 
     if (loading) return <div className="p-10 text-center">Loading...</div>;
     if (!store) return <div className="p-10 text-center">Store not found</div>;

@@ -8,16 +8,21 @@ const RestaurantDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useUser();
+    const { selectedCity } = useLocation();
     const [restaurant, setRestaurant] = useState(null);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
     const [guests, setGuests] = useState(2);
+    const [initialCity, setInitialCity] = useState(null);
 
     useEffect(() => {
         const getRestaurant = async () => {
             try {
                 const { data } = await fetchRestaurantById(id);
                 setRestaurant(data);
+                if (!initialCity && data.city) {
+                    setInitialCity(data.city.slug);
+                }
             } catch (err) {
                 console.error(err);
             } finally {
@@ -26,6 +31,13 @@ const RestaurantDetail = () => {
         };
         getRestaurant();
     }, [id]);
+
+    // Navigate to home when city changes
+    useEffect(() => {
+        if (initialCity && selectedCity && selectedCity.slug !== initialCity) {
+            navigate('/');
+        }
+    }, [selectedCity, initialCity, navigate]);
 
     // Load Razorpay script
     useEffect(() => {

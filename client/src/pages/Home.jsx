@@ -19,7 +19,7 @@ const CategorySection = ({ title, icon: Icon, data, route, renderCard }) => (
                 {data.slice(0, 5).map(renderCard)}
             </div>
         ) : (
-            <div className="text-gray-400 italic">No {title.toLowerCase()} found currently.</div>
+            <div className="text-gray-400 italic">No {title.toLowerCase()} available in this city.</div>
         )}
     </section>
 );
@@ -31,19 +31,29 @@ const Home = () => {
     const [restaurants, setRestaurants] = useState([]);
     const [stores, setStores] = useState([]);
     const [activities, setActivities] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (selectedCity) {
-            fetchMovies(selectedCity.slug).then(res => setMovies(res.data)).catch(console.error);
-            fetchEvents(selectedCity.slug).then(res => setEvents(res.data)).catch(console.error);
-            fetchRestaurants(selectedCity.slug).then(res => setRestaurants(res.data)).catch(console.error);
-            fetchStores(selectedCity.slug).then(res => setStores(res.data)).catch(console.error);
-            fetchActivities(selectedCity.slug).then(res => setActivities(res.data)).catch(console.error);
+            setLoading(true);
+            Promise.all([
+                fetchMovies(selectedCity.slug).then(res => setMovies(res.data)),
+                fetchEvents(selectedCity.slug).then(res => setEvents(res.data)),
+                fetchRestaurants(selectedCity.slug).then(res => setRestaurants(res.data)),
+                fetchStores(selectedCity.slug).then(res => setStores(res.data)),
+                fetchActivities(selectedCity.slug).then(res => setActivities(res.data))
+            ])
+                .catch(console.error)
+                .finally(() => setLoading(false));
         }
     }, [selectedCity]);
 
     if (!selectedCity) {
-        return <div className="min-h-[50vh] flex items-center justify-center">Please select a city to view content</div>;
+        return <div className="min-h-[50vh] flex items-center justify-center text-gray-500">Please select a city to view content</div>;
+    }
+
+    if (loading) {
+        return <div className="min-h-[50vh] flex items-center justify-center text-gray-500">Loading...</div>;
     }
 
     return (
@@ -67,7 +77,7 @@ const Home = () => {
                 renderCard={(movie) => (
                     <Link to={`/movies/${movie._id}`} key={movie._id} className="group cursor-pointer">
                         <div className="rounded-xl overflow-hidden shadow-md mb-3 h-[300px] bg-gray-200">
-                            <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                            <img src={movie.poster || 'https://via.placeholder.com/300x450'} alt={movie.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                         </div>
                         <h3 className="font-bold text-gray-900 group-hover:text-brand-600 truncate">{movie.title}</h3>
                         <p className="text-sm text-gray-500">{movie.genre?.join(', ')}</p>
@@ -85,7 +95,7 @@ const Home = () => {
                     renderCard={(event) => (
                         <Link to={`/events/${event._id}`} key={event._id} className="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden transition-all">
                             <div className="h-40 bg-gray-200">
-                                <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+                                <img src={event.image || 'https://via.placeholder.com/400x300'} alt={event.title} className="w-full h-full object-cover" />
                             </div>
                             <div className="p-4">
                                 <h3 className="font-bold text-lg mb-1 truncate">{event.title}</h3>
@@ -104,15 +114,15 @@ const Home = () => {
                 data={restaurants}
                 route="/restaurants"
                 renderCard={(restaurant) => (
-                    <div key={restaurant._id} className="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden transition-all cursor-pointer">
+                    <Link to={`/restaurants/${restaurant._id}`} key={restaurant._id} className="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden transition-all">
                         <div className="h-40 bg-gray-200">
-                            <img src={restaurant.image || 'https://via.placeholder.com/300'} alt={restaurant.title} className="w-full h-full object-cover" />
+                            <img src={restaurant.image || 'https://via.placeholder.com/400x300'} alt={restaurant.title} className="w-full h-full object-cover" />
                         </div>
                         <div className="p-4">
                             <h3 className="font-bold text-lg mb-1 truncate">{restaurant.title}</h3>
                             <p className="text-sm text-gray-500 truncate">{restaurant.cuisine?.join(', ')}</p>
                         </div>
-                    </div>
+                    </Link>
                 )}
             />
 
@@ -124,15 +134,15 @@ const Home = () => {
                     data={activities}
                     route="/activities"
                     renderCard={(activity) => (
-                        <div key={activity._id} className="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden transition-all cursor-pointer">
+                        <Link to={`/activities/${activity._id}`} key={activity._id} className="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden transition-all">
                             <div className="h-40 bg-gray-200">
-                                <img src={activity.image || 'https://via.placeholder.com/300'} alt={activity.title} className="w-full h-full object-cover" />
+                                <img src={activity.image || 'https://via.placeholder.com/400x300'} alt={activity.title} className="w-full h-full object-cover" />
                             </div>
                             <div className="p-4">
                                 <h3 className="font-bold text-lg mb-1 truncate">{activity.title}</h3>
                                 <p className="text-brand-600 font-bold">₹{activity.price}</p>
                             </div>
-                        </div>
+                        </Link>
                     )}
                 />
             </div>
@@ -144,15 +154,15 @@ const Home = () => {
                 data={stores}
                 route="/stores"
                 renderCard={(store) => (
-                    <div key={store._id} className="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden transition-all cursor-pointer">
+                    <Link to={`/stores/${store._id}`} key={store._id} className="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden transition-all">
                         <div className="h-40 bg-gray-200">
-                            <img src={store.image || 'https://via.placeholder.com/300'} alt={store.title} className="w-full h-full object-cover" />
+                            <img src={store.image || 'https://via.placeholder.com/400x300'} alt={store.title} className="w-full h-full object-cover" />
                         </div>
                         <div className="p-4">
                             <h3 className="font-bold text-lg mb-1 truncate">{store.title}</h3>
                             <p className="text-sm text-gray-500 truncate">{store.category}</p>
                         </div>
-                    </div>
+                    </Link>
                 )}
             />
         </div>

@@ -8,21 +8,33 @@ const EventDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useUser();
+    const { selectedCity } = useLocation();
     const [event, setEvent] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [processing, setProcessing] = useState(false);
+    const [initialCity, setInitialCity] = useState(null);
 
     useEffect(() => {
         const getEvent = async () => {
             try {
                 const { data } = await fetchEventById(id);
                 setEvent(data);
+                if (!initialCity && data.city) {
+                    setInitialCity(data.city.slug);
+                }
             } catch (err) {
                 console.error(err);
             }
         };
         getEvent();
     }, [id]);
+
+    // Navigate to home when city changes
+    useEffect(() => {
+        if (initialCity && selectedCity && selectedCity.slug !== initialCity) {
+            navigate('/');
+        }
+    }, [selectedCity, initialCity, navigate]);
 
     // Load Razorpay script
     useEffect(() => {

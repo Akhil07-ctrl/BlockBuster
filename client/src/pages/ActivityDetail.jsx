@@ -8,16 +8,21 @@ const ActivityDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useUser();
+    const { selectedCity } = useLocation();
     const [activity, setActivity] = useState(null);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
     const [participants, setParticipants] = useState(1);
+    const [initialCity, setInitialCity] = useState(null);
 
     useEffect(() => {
         const getActivity = async () => {
             try {
                 const { data } = await fetchActivityById(id);
                 setActivity(data);
+                if (!initialCity && data.city) {
+                    setInitialCity(data.city.slug);
+                }
             } catch (err) {
                 console.error(err);
             } finally {
@@ -26,6 +31,13 @@ const ActivityDetail = () => {
         };
         getActivity();
     }, [id]);
+
+    // Navigate to home when city changes
+    useEffect(() => {
+        if (initialCity && selectedCity && selectedCity.slug !== initialCity) {
+            navigate('/');
+        }
+    }, [selectedCity, initialCity, navigate]);
 
     // Load Razorpay script
     useEffect(() => {
@@ -122,8 +134,8 @@ const ActivityDetail = () => {
                         )}
                         {activity.difficulty && (
                             <span className={`px-3 py-1 rounded-full text-sm font-semibold ${activity.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
-                                    activity.difficulty === 'Moderate' ? 'bg-yellow-100 text-yellow-800' :
-                                        'bg-red-100 text-red-800'
+                                activity.difficulty === 'Moderate' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-red-100 text-red-800'
                                 }`}>
                                 {activity.difficulty}
                             </span>

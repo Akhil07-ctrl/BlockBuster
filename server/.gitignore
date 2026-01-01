@@ -11,9 +11,9 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# Build output
-dist/
-build/
+# Logs
+logs/
+*.log
 
 # IDE
 .vscode/
@@ -25,7 +25,3 @@ build/
 # OS
 .DS_Store
 Thumbs.db
-
-# Logs
-logs/
-*.log

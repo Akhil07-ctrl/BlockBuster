@@ -21,7 +21,7 @@ const getVenues = asyncHandler(async (req, res) => {
     res.json(venues);
 });
 
-// @desc    Create venues (single or bulk)
+// @desc    Create/Update venues (single or bulk with UPSERT)
 // @route   POST /api/venues
 // @access  Public
 const createVenues = asyncHandler(async (req, res) => {
@@ -47,13 +47,22 @@ const createVenues = asyncHandler(async (req, res) => {
         return processed;
     }));
 
-    if (processedVenues.length === 1) {
-        const venue = await Venue.create(processedVenues[0]);
-        res.status(201).json(venue);
-    } else {
-        const venues = await Venue.insertMany(processedVenues);
-        res.status(201).json(venues);
-    }
+    // Use bulkWrite with upsert
+    const operations = processedVenues.map(venue => ({
+        updateOne: {
+            filter: { slug: venue.slug },
+            update: { $set: venue },
+            upsert: true
+        }
+    }));
+
+    const result = await Venue.bulkWrite(operations);
+
+    res.status(200).json({
+        message: 'Venues inserted/updated successfully',
+        inserted: result.upsertedCount,
+        updated: result.modifiedCount
+    });
 });
 
 module.exports = {

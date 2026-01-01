@@ -28,7 +28,7 @@ const getEvents = asyncHandler(async (req, res) => {
     res.json(events);
 });
 
-// @desc    Create events (single or bulk)
+// @desc    Create/Update events (single or bulk with UPSERT)
 // @route   POST /api/events
 // @access  Public
 const createEvents = asyncHandler(async (req, res) => {
@@ -64,13 +64,22 @@ const createEvents = asyncHandler(async (req, res) => {
         return processed;
     }));
 
-    if (processedEvents.length === 1) {
-        const event = await Event.create(processedEvents[0]);
-        res.status(201).json(event);
-    } else {
-        const events = await Event.insertMany(processedEvents);
-        res.status(201).json(events);
-    }
+    // Use bulkWrite with upsert
+    const operations = processedEvents.map(event => ({
+        updateOne: {
+            filter: { slug: event.slug },
+            update: { $set: event },
+            upsert: true
+        }
+    }));
+
+    const result = await Event.bulkWrite(operations);
+
+    res.status(200).json({
+        message: 'Events inserted/updated successfully',
+        inserted: result.upsertedCount,
+        updated: result.modifiedCount
+    });
 });
 
 // @desc    Get event details

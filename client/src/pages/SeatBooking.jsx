@@ -1,128 +1,192 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import clsx from 'clsx';
-import { useUser } from "@clerk/clerk-react";
-import api from '../api';
-
-const ROWS = 8;
-const COLS = 10;
-const PRICE = 250;
+import { useUser } from '@clerk/clerk-react';
+import { fetchMovieById, createBooking, verifyPayment } from '../api';
 
 const SeatBooking = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useUser();
+    const [movie, setMovie] = useState(null);
     const [selectedSeats, setSelectedSeats] = useState([]);
-    const [bookingState, setBookingState] = useState('idle');
+    const [loading, setLoading] = useState(true);
+    const [processing, setProcessing] = useState(false);
 
-    // Mock occupied seats (in a real app, fetch from backend)
-    const occupiedSeats = ['3-4', '3-5', '5-5', '5-6'];
+    const rows = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const seatsPerRow = 10;
+    const pricePerSeat = 250;
 
-    const handleSeatClick = (row, col) => {
-        const seatId = `${row}-${col}`;
-        if (occupiedSeats.includes(seatId)) return;
+    useEffect(() => {
+        const getMovie = async () => {
+            try {
+                const { data } = await fetchMovieById(id);
+                setMovie(data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        getMovie();
+    }, [id]);
 
-        if (selectedSeats.includes(seatId)) {
-            setSelectedSeats(selectedSeats.filter(id => id !== seatId));
-        } else {
-            setSelectedSeats([...selectedSeats, seatId]);
-        }
+    // Load Razorpay script
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        document.body.appendChild(script);
+    }, []);
+
+    const toggleSeat = (seat) => {
+        setSelectedSeats(prev =>
+            prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]
+        );
     };
 
-    const handleBook = async () => {
-        if (!user) return navigate('/sign-in');
+    const handlePayment = async () => {
+        if (!user) {
+            alert('Please sign in to book tickets');
+            navigate('/sign-in');
+            return;
+        }
 
-        setBookingState('booking');
+        if (selectedSeats.length === 0) {
+            alert('Please select at least one seat');
+            return;
+        }
+
+        setProcessing(true);
+
         try {
-            await api.post('/bookings', {
+            // Create booking and get Razorpay order
+            const { data } = await createBooking({
                 userId: user.id,
-                email: user.primaryEmailAddress?.emailAddress,
-                entityId: id, // Movie ID
+                email: user.primaryEmailAddress.emailAddress,
+                entityId: movie._id,
                 entityType: 'Movie',
-                // venueId: ... (We'd need to fetch movie details to get venue, neglecting for MVP)
-                date: new Date(),
                 seats: selectedSeats,
                 quantity: selectedSeats.length,
-                totalAmount: selectedSeats.length * PRICE
+                totalAmount: selectedSeats.length * pricePerSeat
             });
-            navigate('/booking/success');
+
+            const options = {
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_DUMMY',
+                amount: data.order.amount,
+                currency: data.order.currency,
+                name: 'BlockBuster',
+                description: `Movie: ${movie.title}`,
+                order_id: data.order.id,
+                handler: async function (response) {
+                    try {
+                        // Verify payment
+                        await verifyPayment({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            bookingId: data.booking._id
+                        });
+                        navigate('/booking/success');
+                    } catch (err) {
+                        alert('Payment verification failed');
+                        console.error(err);
+                    }
+                },
+                prefill: {
+                    name: user.fullName,
+                    email: user.primaryEmailAddress.emailAddress
+                },
+                theme: {
+                    color: '#ef4444'
+                }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
         } catch (err) {
+            alert('Failed to initiate payment');
             console.error(err);
-            alert('Booking failed');
-            setBookingState('idle');
+        } finally {
+            setProcessing(false);
         }
     };
 
+    if (loading) return <div className="p-10 text-center">Loading...</div>;
+    if (!movie) return <div className="p-10 text-center">Movie not found</div>;
+
     return (
-        <div className="min-h-screen bg-gray-900 text-white flex flex-col">
-            <div className="p-4 border-b border-gray-800 flex items-center gap-4">
-                <button onClick={() => navigate(-1)}><ArrowLeft /></button>
-                <div>
-                    <h2 className="font-bold">Select Seats</h2>
-                    <p className="text-xs text-gray-400">PVR Icon: Hitech City | Today, 18:00</p>
-                </div>
+        <div className="container mx-auto px-4 py-8">
+            <h1 className="text-3xl font-bold mb-2">{movie.title}</h1>
+            <p className="text-gray-600 mb-8">Select your seats</p>
+
+            {/* Screen */}
+            <div className="mb-8">
+                <div className="w-full h-3 bg-gradient-to-b from-gray-400 to-gray-200 rounded-t-full mb-2"></div>
+                <p className="text-center text-sm text-gray-500">SCREEN</p>
             </div>
 
-            <div className="flex-grow overflow-auto p-10 flex flex-col items-center">
-                {/* Screen */}
-                <div className="w-full max-w-2xl text-center mb-12">
-                    <div className="h-1 bg-brand-500 shadow-[0_20px_50px_rgba(239,68,68,0.3)] mb-2 w-full mx-auto rounded-full"></div>
-                    <p className="text-xs text-gray-500 uppercase tracking-widest">Screen this way</p>
-                </div>
-
-                {/* Seats */}
-                <div className="grid gap-4">
-                    {Array.from({ length: ROWS }).map((_, r) => (
-                        <div key={r} className="flex gap-2 justify-center">
-                            {Array.from({ length: COLS }).map((_, c) => {
-                                const seatId = `${r}-${c}`;
-                                const isOccupied = occupiedSeats.includes(seatId);
-                                const isSelected = selectedSeats.includes(seatId);
-
-                                return (
-                                    <button
-                                        key={seatId}
-                                        onClick={() => handleSeatClick(r, c)}
-                                        disabled={isOccupied}
-                                        className={clsx(
-                                            "w-8 h-8 rounded text-xs flex items-center justify-center transition-all",
-                                            isOccupied ? "bg-gray-700 cursor-not-allowed" :
-                                                isSelected ? "bg-brand-500 text-white shadow-lg scale-110" : "border border-brand-500/30 hover:bg-brand-500/20 text-brand-500"
-                                        )}
-                                    >
-
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    ))}
-                </div>
-
-                {/* Legend */}
-                <div className="flex gap-6 mt-12 text-sm text-gray-400">
-                    <div className="flex items-center gap-2"><div className="w-4 h-4 border border-brand-500/30"></div> Available</div>
-                    <div className="flex items-center gap-2"><div className="w-4 h-4 bg-gray-700"></div> Booked</div>
-                    <div className="flex items-center gap-2"><div className="w-4 h-4 bg-brand-500"></div> Selected</div>
-                </div>
-            </div>
-
-            {/* Footer */}
-            {selectedSeats.length > 0 && (
-                <div className="p-4 bg-white text-black shadow-up-lg flex justify-between items-center animate-in slide-in-from-bottom">
-                    <div>
-                        <p className="text-xs text-gray-500">{selectedSeats.length} Tickets</p>
-                        <p className="font-bold text-xl">₹{selectedSeats.length * PRICE}</p>
+            {/* Seats Grid */}
+            <div className="max-w-3xl mx-auto mb-8">
+                {rows.map(row => (
+                    <div key={row} className="flex justify-center gap-2 mb-2">
+                        <span className="w-8 text-center font-bold text-gray-600">{row}</span>
+                        {[...Array(seatsPerRow)].map((_, i) => {
+                            const seatNumber = `${row}${i + 1}`;
+                            const isSelected = selectedSeats.includes(seatNumber);
+                            return (
+                                <button
+                                    key={seatNumber}
+                                    onClick={() => toggleSeat(seatNumber)}
+                                    className={`w-8 h-8 rounded-t-lg border-2 transition-all ${isSelected
+                                            ? 'bg-brand-500 border-brand-600 text-white'
+                                            : 'bg-gray-200 border-gray-300 hover:bg-gray-300'
+                                        }`}
+                                >
+                                    {i + 1}
+                                </button>
+                            );
+                        })}
                     </div>
-                    <button
-                        className="bg-brand-500 hover:bg-brand-600 text-white px-8 py-3 rounded-lg font-bold disabled:opacity-50"
-                        onClick={handleBook}
-                        disabled={bookingState === 'booking'}
-                    >
-                        {bookingState === 'booking' ? 'Processing...' : 'Pay & Confirm'}
-                    </button>
+                ))}
+            </div>
+
+            {/* Legend */}
+            <div className="flex justify-center gap-6 mb-8 text-sm">
+                <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-gray-200 border-2 border-gray-300 rounded-t-lg"></div>
+                    <span>Available</span>
                 </div>
-            )}
+                <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-brand-500 border-2 border-brand-600 rounded-t-lg"></div>
+                    <span>Selected</span>
+                </div>
+            </div>
+
+            {/* Booking Summary */}
+            <div className="max-w-md mx-auto bg-white rounded-xl border p-6 shadow-lg">
+                <h3 className="font-bold text-lg mb-4">Booking Summary</h3>
+                <div className="space-y-2 mb-4">
+                    <div className="flex justify-between">
+                        <span>Selected Seats:</span>
+                        <span className="font-bold">{selectedSeats.join(', ') || 'None'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>Price per seat:</span>
+                        <span>₹{pricePerSeat}</span>
+                    </div>
+                    <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                        <span>Total:</span>
+                        <span className="text-brand-600">₹{selectedSeats.length * pricePerSeat}</span>
+                    </div>
+                </div>
+                <button
+                    onClick={handlePayment}
+                    disabled={selectedSeats.length === 0 || processing}
+                    className="w-full bg-brand-500 hover:bg-brand-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3 rounded-lg font-bold transition-colors"
+                >
+                    {processing ? 'Processing...' : 'Proceed to Payment'}
+                </button>
+            </div>
         </div>
     );
 };

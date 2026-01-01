@@ -10,9 +10,15 @@ import StoresPage from './pages/Stores';
 import ActivitiesPage from './pages/Activities';
 import MovieDetail from './pages/MovieDetail';
 import EventDetail from './pages/EventDetail';
+import RestaurantDetail from './pages/RestaurantDetail';
+import StoreDetail from './pages/StoreDetail';
+import ActivityDetail from './pages/ActivityDetail';
 import SeatBooking from './pages/SeatBooking';
 import BookingSuccess from './pages/BookingSuccess';
+import UserProfile from './pages/UserProfile';
+import NotFound from './pages/NotFound';
 import LocationModal from './components/LocationModal';
+import SearchBar from './components/SearchBar';
 import { SignInPage, SignUpPage } from './pages/Auth';
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import axios from 'axios';
@@ -60,13 +66,9 @@ function App() {
           <div className="flex items-center gap-8">
             <Link to="/" className="text-brand-600 font-extrabold text-2xl tracking-tighter">BlockBuster</Link>
 
-            {/* Search Bar Placeholder */}
-            <div className="hidden md:block relative">
-              <input
-                type="text"
-                placeholder="Search for Movies, Events, Plays, Sports and Activities"
-                className="w-[300px] lg:w-[400px] border border-gray-300 rounded-md py-2 px-4 text-sm focus:outline-none focus:border-brand-500"
-              />
+            {/* Search Bar */}
+            <div className="hidden md:block flex-1 max-w-md">
+              <SearchBar />
             </div>
           </div>
 
@@ -106,11 +108,16 @@ function App() {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/restaurants" element={<RestaurantsPage />} />
+          <Route path="/restaurants/:id" element={<RestaurantDetail />} />
           <Route path="/stores" element={<StoresPage />} />
+          <Route path="/stores/:id" element={<StoreDetail />} />
           <Route path="/activities" element={<ActivitiesPage />} />
+          <Route path="/activities/:id" element={<ActivityDetail />} />
           <Route path="/booking/success" element={<BookingSuccess />} />
+          <Route path="/profile" element={<UserProfile />} />
           <Route path="/sign-in/*" element={<SignInPage />} />
           <Route path="/sign-up/*" element={<SignUpPage />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 

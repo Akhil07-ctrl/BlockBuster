@@ -21,6 +21,7 @@
     "helmet": "^7.1.0",
     "mongoose": "^8.0.3",
     "morgan": "^1.10.0",
+    "razorpay": "^2.9.6",
     "slugify": "^1.6.6"
   },
   "devDependencies": {

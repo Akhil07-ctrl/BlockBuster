@@ -10,7 +10,7 @@ const getMovies = asyncHandler(async (req, res) => {
     res.json(movies);
 });
 
-// @desc    Create movies (single or bulk)
+// @desc    Create/Update movies (single or bulk with UPSERT)
 // @route   POST /api/movies
 // @access  Public
 const createMovies = asyncHandler(async (req, res) => {
@@ -22,13 +22,22 @@ const createMovies = asyncHandler(async (req, res) => {
         slug: movie.slug || slugify(movie.title, { lower: true, strict: true })
     }));
 
-    if (moviesWithSlugs.length === 1) {
-        const movie = await Movie.create(moviesWithSlugs[0]);
-        res.status(201).json(movie);
-    } else {
-        const movies = await Movie.insertMany(moviesWithSlugs);
-        res.status(201).json(movies);
-    }
+    // Use bulkWrite with upsert
+    const operations = moviesWithSlugs.map(movie => ({
+        updateOne: {
+            filter: { slug: movie.slug },
+            update: { $set: movie },
+            upsert: true
+        }
+    }));
+
+    const result = await Movie.bulkWrite(operations);
+
+    res.status(200).json({
+        message: 'Movies inserted/updated successfully',
+        inserted: result.upsertedCount,
+        updated: result.modifiedCount
+    });
 });
 
 // @desc    Get movie details

@@ -34,4 +34,12 @@ export const fetchStoreById = (id) => api.get(`/stores/${id}`);
 export const fetchActivities = (citySlug, type) => api.get(`/activities?city=${citySlug}&type=${type || ''}`);
 export const fetchActivityById = (id) => api.get(`/activities/${id}`);
 
+// Bookings
+export const createBooking = (bookingData) => api.post('/bookings', bookingData);
+export const verifyPayment = (paymentData) => api.post('/bookings/verify-payment', paymentData);
+export const getUserBookings = (userId) => api.get(`/bookings/user/${userId}`);
+
+// Search
+export const globalSearch = (query, city) => api.get(`/search?q=${query}&city=${city || ''}`);
+
 export default api;

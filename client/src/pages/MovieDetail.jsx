@@ -1,92 +1,147 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import api from '../api';
-import { Clock, Star, Play, Calendar } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useParams } from 'react-router-dom';
+import { fetchMovieById } from '../api';
+import { Calendar, Clock, Star, Film } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const MovieDetail = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
     const [movie, setMovie] = useState(null);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        api.get(`/movies/${id}`)
-            .then(res => setMovie(res.data))
-            .catch(console.error)
-            .finally(() => setLoading(false));
+        const getMovie = async () => {
+            try {
+                const { data } = await fetchMovieById(id);
+                setMovie(data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        getMovie();
     }, [id]);
 
-    if (loading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
-    if (!movie) return <div className="h-screen flex items-center justify-center">Movie not found</div>;
+    if (!movie) return <div className="p-10 text-center">Loading...</div>;
 
     return (
-        <div className="bg-neutral-900 min-h-screen text-white pb-20">
-            {/* Backdrop */}
-            <div
-                className="h-[400px] md:h-[500px] bg-cover bg-center relative"
-                style={{ backgroundImage: `url(${movie.backdrop || movie.poster})` }}
-            >
-                <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent"></div>
-            </div>
+        <div className="min-h-screen">
+            {/* Backdrop Banner */}
+            {movie.backdrop && (
+                <div className="relative h-96 w-full">
+                    <img
+                        src={movie.backdrop}
+                        alt={movie.title}
+                        className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                </div>
+            )}
 
-            <div className="container mx-auto px-4 -mt-32 relative z-10">
-                <div className="flex flex-col md:flex-row gap-8">
+            <div className="container mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 -mt-32 relative z-10">
                     {/* Poster */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="w-48 md:w-64 rounded-xl overflow-hidden shadow-2xl mx-auto md:mx-0 shrink-0"
-                    >
-                        <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover" />
-                    </motion.div>
-
-                    {/* Info */}
-                    <div className="flex-1 pt-4 text-center md:text-left">
-                        <h1 className="text-3xl md:text-5xl font-bold mb-4">{movie.title}</h1>
-
-                        <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm md:text-base text-gray-300 mb-6">
-                            {movie.rating > 0 && (
-                                <span className="flex items-center gap-1 text-brand-500 font-bold">
-                                    <Star size={18} fill="currentColor" /> {movie.rating}/10
-                                </span>
-                            )}
-                            <span className="flex items-center gap-1"><Clock size={18} /> {movie.duration} min</span>
-                            <span className="bg-white/10 px-2 py-0.5 rounded">{movie.certificate}</span>
-                            <span>{movie.language}</span>
-                        </div>
-
-                        <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-6">
-                            {movie.genre.map(g => (
-                                <span key={g} className="border border-gray-600 rounded-full px-3 py-1 text-xs">{g}</span>
-                            ))}
-                        </div>
-
-                        <button
-                            onClick={() => navigate(`/movies/${id}/booking`)}
-                            className="bg-brand-500 hover:bg-brand-600 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-brand-500/20 transition-all w-full md:w-auto"
-                        >
-                            Book Tickets
-                        </button>
+                    <div className="md:col-span-1">
+                        <img
+                            src={movie.poster || 'https://via.placeholder.com/300x450'}
+                            alt={movie.title}
+                            className="w-full rounded-xl shadow-2xl"
+                        />
                     </div>
-                </div>
 
-                {/* Description */}
-                <div className="mt-12 max-w-4xl">
-                    <h2 className="text-2xl font-bold mb-4">About the Movie</h2>
-                    <p className="text-gray-300 leading-relaxed">{movie.description}</p>
-                </div>
+                    {/* Movie Details */}
+                    <div className="md:col-span-2 text-white">
+                        <h1 className="text-4xl md:text-6xl font-bold mb-4">{movie.title}</h1>
 
-                {/* Cast Placeholder */}
-                <div className="mt-12">
-                    <h2 className="text-2xl font-bold mb-6">Cast</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                        {/* Mock Cast if empty */}
-                        <div className="text-center">
-                            <div className="w-24 h-24 rounded-full bg-gray-700 mx-auto mb-2"></div>
-                            <p className="text-sm font-medium">Actor Name</p>
-                            <p className="text-xs text-gray-400">Role</p>
+                        {/* Metadata Row */}
+                        <div className="flex flex-wrap gap-4 mb-6">
+                            {movie.rating > 0 && (
+                                <div className="flex items-center gap-2 bg-brand-500 px-3 py-1 rounded-full">
+                                    <Star size={16} fill="currentColor" />
+                                    <span className="font-bold">{movie.rating}/10</span>
+                                    {movie.votes > 0 && <span className="text-sm">({movie.votes} votes)</span>}
+                                </div>
+                            )}
+                            {movie.certificate && (
+                                <span className="bg-gray-700 px-3 py-1 rounded-full font-bold">{movie.certificate}</span>
+                            )}
+                            {movie.duration && (
+                                <div className="flex items-center gap-1">
+                                    <Clock size={16} />
+                                    <span>{movie.duration} mins</span>
+                                </div>
+                            )}
+                            {movie.releaseDate && (
+                                <div className="flex items-center gap-1">
+                                    <Calendar size={16} />
+                                    <span>{new Date(movie.releaseDate).getFullYear()}</span>
+                                </div>
+                            )}
                         </div>
+
+                        {/* Genre */}
+                        {movie.genre && movie.genre.length > 0 && (
+                            <div className="mb-4">
+                                <div className="flex flex-wrap gap-2">
+                                    {movie.genre.map((g, idx) => (
+                                        <span key={idx} className="border border-gray-400 px-3 py-1 rounded-full text-sm">
+                                            {g}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Language */}
+                        {movie.language && (
+                            <p className="mb-4 flex items-center gap-2">
+                                <Film size={18} />
+                                <span>{movie.language}</span>
+                            </p>
+                        )}
+
+                        {/* Description */}
+                        {movie.description && (
+                            <p className="text-gray-300 mb-6 text-lg leading-relaxed">{movie.description}</p>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-4 mb-8">
+                            <Link
+                                to={`/movies/${movie._id}/booking`}
+                                className="bg-brand-500 hover:bg-brand-600 text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors"
+                            >
+                                Book Tickets
+                            </Link>
+                            {movie.trailerUrl && (
+                                <a
+                                    href={movie.trailerUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="border-2 border-white hover:bg-white hover:text-black px-8 py-3 rounded-lg font-bold text-lg transition-colors"
+                                >
+                                    Watch Trailer
+                                </a>
+                            )}
+                        </div>
+
+                        {/* Cast */}
+                        {movie.cast && movie.cast.length > 0 && (
+                            <div>
+                                <h2 className="text-2xl font-bold mb-4">Cast</h2>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {movie.cast.map((member, idx) => (
+                                        <div key={idx} className="text-center">
+                                            <img
+                                                src={member.image || 'https://via.placeholder.com/150'}
+                                                alt={member.name}
+                                                className="w-24 h-24 rounded-full mx-auto mb-2 object-cover border-2 border-gray-600"
+                                            />
+                                            <p className="font-semibold">{member.name}</p>
+                                            {member.role && <p className="text-sm text-gray-400">{member.role}</p>}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -10,7 +10,7 @@ const getCities = asyncHandler(async (req, res) => {
     res.json(cities);
 });
 
-// @desc    Create cities (single or bulk)
+// @desc    Create/Update cities (single or bulk with UPSERT)
 // @route   POST /api/cities
 // @access  Public
 const createCities = asyncHandler(async (req, res) => {
@@ -22,13 +22,22 @@ const createCities = asyncHandler(async (req, res) => {
         slug: city.slug || slugify(city.name, { lower: true, strict: true })
     }));
 
-    if (citiesWithSlugs.length === 1) {
-        const city = await City.create(citiesWithSlugs[0]);
-        res.status(201).json(city);
-    } else {
-        const cities = await City.insertMany(citiesWithSlugs);
-        res.status(201).json(cities);
-    }
+    // Use bulkWrite with upsert to avoid duplicate errors
+    const operations = citiesWithSlugs.map(city => ({
+        updateOne: {
+            filter: { slug: city.slug },
+            update: { $set: city },
+            upsert: true
+        }
+    }));
+
+    const result = await City.bulkWrite(operations);
+
+    res.status(200).json({
+        message: 'Cities inserted/updated successfully',
+        inserted: result.upsertedCount,
+        updated: result.modifiedCount
+    });
 });
 
 module.exports = {

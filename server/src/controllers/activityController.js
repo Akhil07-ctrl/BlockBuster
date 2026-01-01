@@ -32,7 +32,7 @@ const getActivities = asyncHandler(async (req, res) => {
     res.json(activities);
 });
 
-// @desc    Create activities (single or bulk)
+// @desc    Create/Update activities (single or bulk with UPSERT)
 // @route   POST /api/activities
 // @access  Public
 const createActivities = asyncHandler(async (req, res) => {
@@ -68,13 +68,22 @@ const createActivities = asyncHandler(async (req, res) => {
         return processed;
     }));
 
-    if (processedActivities.length === 1) {
-        const activity = await Activity.create(processedActivities[0]);
-        res.status(201).json(activity);
-    } else {
-        const activities = await Activity.insertMany(processedActivities);
-        res.status(201).json(activities);
-    }
+    // Use bulkWrite with upsert
+    const operations = processedActivities.map(activity => ({
+        updateOne: {
+            filter: { slug: activity.slug },
+            update: { $set: activity },
+            upsert: true
+        }
+    }));
+
+    const result = await Activity.bulkWrite(operations);
+
+    res.status(200).json({
+        message: 'Activities inserted/updated successfully',
+        inserted: result.upsertedCount,
+        updated: result.modifiedCount
+    });
 });
 
 // @desc    Get activity details

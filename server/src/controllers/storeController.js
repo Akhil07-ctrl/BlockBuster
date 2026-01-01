@@ -28,7 +28,7 @@ const getStores = asyncHandler(async (req, res) => {
     res.json(stores);
 });
 
-// @desc    Create stores (single or bulk)
+// @desc    Create/Update stores (single or bulk with UPSERT)
 // @route   POST /api/stores
 // @access  Public
 const createStores = asyncHandler(async (req, res) => {
@@ -64,13 +64,22 @@ const createStores = asyncHandler(async (req, res) => {
         return processed;
     }));
 
-    if (processedStores.length === 1) {
-        const store = await Store.create(processedStores[0]);
-        res.status(201).json(store);
-    } else {
-        const stores = await Store.insertMany(processedStores);
-        res.status(201).json(stores);
-    }
+    // Use bulkWrite with upsert
+    const operations = processedStores.map(store => ({
+        updateOne: {
+            filter: { slug: store.slug },
+            update: { $set: store },
+            upsert: true
+        }
+    }));
+
+    const result = await Store.bulkWrite(operations);
+
+    res.status(200).json({
+        message: 'Stores inserted/updated successfully',
+        inserted: result.upsertedCount,
+        updated: result.modifiedCount
+    });
 });
 
 // @desc    Get store details

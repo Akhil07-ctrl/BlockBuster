@@ -28,7 +28,7 @@ const getRestaurants = asyncHandler(async (req, res) => {
     res.json(restaurants);
 });
 
-// @desc    Create restaurants (single or bulk)
+// @desc    Create/Update restaurants (single or bulk with UPSERT)
 // @route   POST /api/restaurants
 // @access  Public
 const createRestaurants = asyncHandler(async (req, res) => {
@@ -64,13 +64,22 @@ const createRestaurants = asyncHandler(async (req, res) => {
         return processed;
     }));
 
-    if (processedRestaurants.length === 1) {
-        const restaurant = await Restaurant.create(processedRestaurants[0]);
-        res.status(201).json(restaurant);
-    } else {
-        const restaurants = await Restaurant.insertMany(processedRestaurants);
-        res.status(201).json(restaurants);
-    }
+    // Use bulkWrite with upsert
+    const operations = processedRestaurants.map(restaurant => ({
+        updateOne: {
+            filter: { slug: restaurant.slug },
+            update: { $set: restaurant },
+            upsert: true
+        }
+    }));
+
+    const result = await Restaurant.bulkWrite(operations);
+
+    res.status(200).json({
+        message: 'Restaurants inserted/updated successfully',
+        inserted: result.upsertedCount,
+        updated: result.modifiedCount
+    });
 });
 
 // @desc    Get restaurant details

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    baseURL: import.meta.env.VITE_API_URL || 'https://blockbuster-zl08.onrender.com/api',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -41,5 +41,8 @@ export const getUserBookings = (userId) => api.get(`/bookings/user/${userId}`);
 
 // Search
 export const globalSearch = (query, city) => api.get(`/search?q=${query}&city=${city || ''}`);
+
+// Users
+export const syncUser = (userData) => api.post('/users/sync', userData);
 
 export default api;

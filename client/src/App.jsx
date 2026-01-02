@@ -22,7 +22,7 @@ import SearchBar from './components/SearchBar';
 import SmoothScroll from './components/SmoothScroll';
 import { SignInPage, SignUpPage } from './pages/Auth';
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import axios from 'axios';
+import { syncUser } from './api';
 import { MapPin, Search, Menu, X } from 'lucide-react';
 
 function App() {
@@ -43,9 +43,9 @@ function App() {
 
   useEffect(() => {
     if (isLoaded && user) {
-      const syncUser = async () => {
+      const handleSync = async () => {
         try {
-          await axios.post('http://localhost:5000/api/users/sync', {
+          await syncUser({
             clerkId: user.id,
             email: user.primaryEmailAddress?.emailAddress,
             firstName: user.firstName,
@@ -55,7 +55,7 @@ function App() {
           console.error("User Sync Failed", err);
         }
       };
-      syncUser();
+      handleSync();
     }
   }, [isLoaded, user]);
 
@@ -66,12 +66,11 @@ function App() {
       <LocationModal />
 
       {/* Enhanced Navbar */}
-      <motion.nav 
-        className={`sticky top-0 z-40 transition-all duration-300 ${
-          navScrolled 
-            ? 'bg-white/70 shadow-lg shadow-black/5' 
-            : 'bg-white/40'
-        } backdrop-blur-xl border-b border-gray-100/50`}
+      <motion.nav
+        className={`sticky top-0 z-40 transition-all duration-300 ${navScrolled
+          ? 'bg-white/70 shadow-lg shadow-black/5'
+          : 'bg-white/40'
+          } backdrop-blur-xl border-b border-gray-100/50`}
         initial={{ y: -80 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -115,13 +114,13 @@ function App() {
                 <MapPin size={16} />
               </motion.div>
               <span className="hidden md:inline">{selectedCity ? selectedCity.name : 'Select City'}</span>
-              <motion.svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="16" 
-                height="16" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
+              <motion.svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
                 strokeWidth="2"
                 className="group-hover:rotate-180 transition-transform"
               >
@@ -158,7 +157,7 @@ function App() {
 
             <SignedIn>
               <div className="flex items-center gap-3 md:gap-4">
-                <motion.span 
+                <motion.span
                   className="text-sm font-semibold text-gray-700 hidden md:inline-block"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -198,9 +197,9 @@ function App() {
         {/* Mobile Menu */}
         <motion.div
           initial={{ opacity: 0, height: 0 }}
-          animate={{ 
-            opacity: mobileMenuOpen ? 1 : 0, 
-            height: mobileMenuOpen ? 'auto' : 0 
+          animate={{
+            opacity: mobileMenuOpen ? 1 : 0,
+            height: mobileMenuOpen ? 'auto' : 0
           }}
           transition={{ duration: 0.3 }}
           className="md:hidden overflow-hidden border-t border-gray-100/50 bg-white/50 backdrop-blur-xl"
@@ -246,7 +245,7 @@ function App() {
       </main>
 
       {/* Premium Animated Footer */}
-      <motion.footer 
+      <motion.footer
         className="relative bg-gradient-to-br from-gray-900 via-gray-950 to-black text-white overflow-hidden"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -279,7 +278,7 @@ function App() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
               >
-                <motion.h2 
+                <motion.h2
                   className="text-4xl font-black bg-gradient-to-r from-white via-brand-300 to-brand-500 bg-clip-text text-transparent mb-4"
                   whileHover={{ scale: 1.05 }}
                 >
@@ -409,7 +408,7 @@ function App() {
               <p className="text-gray-500 text-sm">
                 © 2024 BlockBuster Entertainment. Crafted with passion for amazing experiences.
               </p>
-              
+
               {/* Social Links */}
               <div className="flex gap-4">
                 {[

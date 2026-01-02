@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
+import { useLocation } from '../context/LocationContext';
 import { fetchRestaurantById, createBooking, verifyPayment } from '../api';
 import { MapPin, Phone, Clock, DollarSign, Utensils, Star, ExternalLink, Minus, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const RestaurantDetail = () => {
     const { id } = useParams();
@@ -108,30 +110,69 @@ const RestaurantDetail = () => {
         }
     };
 
-    if (loading) return <div className="p-10 text-center">Loading...</div>;
+    if (loading) {
+        return (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="min-h-screen bg-gradient-to-br from-white to-gray-50 flex items-center justify-center"
+            >
+                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} className="text-brand-600 text-3xl font-bold">
+                    Loading...
+                </motion.div>
+            </motion.div>
+        );
+    }
     if (!restaurant) return <div className="p-10 text-center">Restaurant not found</div>;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="container mx-auto px-4 py-12"
+        >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Image */}
-                <div>
-                    <img
+                <motion.div
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <motion.img
                         src={restaurant.image || 'https://via.placeholder.com/600x400'}
                         alt={restaurant.title}
-                        className="w-full rounded-xl shadow-lg"
+                        className="w-full rounded-2xl shadow-2xl"
+                        whileHover={{ scale: 1.02 }}
                     />
-                </div>
+                </motion.div>
 
                 {/* Details */}
-                <div>
-                    <h1 className="text-4xl font-bold mb-2">{restaurant.title}</h1>
+                <motion.div
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                    <motion.h1
+                        className="text-5xl font-black mb-4 bg-gradient-to-r from-brand-600 to-orange-600 bg-clip-text text-transparent"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                    >
+                        {restaurant.title}
+                    </motion.h1>
 
                     {restaurant.cuisine && restaurant.cuisine.length > 0 && (
-                        <div className="flex items-center gap-2 mb-4">
-                            <Utensils size={18} className="text-brand-500" />
-                            <span className="text-gray-600">{restaurant.cuisine.join(', ')}</span>
-                        </div>
+                        <motion.div
+                            className="flex items-center gap-3 mb-6"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4 }}
+                        >
+                            <div className="p-2 bg-brand-100 rounded-lg">
+                                <Utensils size={20} className="text-brand-600" />
+                            </div>
+                            <span className="text-gray-700 font-medium">{restaurant.cuisine.join(', ')}</span>
+                        </motion.div>
                     )}
 
                     {restaurant.description && (
@@ -195,41 +236,69 @@ const RestaurantDetail = () => {
                     )}
 
                     {/* Reservation */}
-                    <div className="bg-gray-50 rounded-xl p-6">
-                        <h3 className="font-bold text-lg mb-4">Make a Reservation</h3>
-                        <div className="flex items-center justify-between mb-4">
-                            <span className="text-gray-700">Number of Guests:</span>
+                    <motion.div
+                        className="bg-gradient-to-br from-brand-50 to-orange-50 rounded-2xl p-8 border border-brand-100"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7 }}
+                    >
+                        <h3 className="font-bold text-xl mb-6 bg-gradient-to-r from-brand-600 to-orange-600 bg-clip-text text-transparent">Make a Reservation</h3>
+                        <div className="flex items-center justify-between mb-6">
+                            <span className="text-gray-700 font-medium">Number of Guests:</span>
                             <div className="flex items-center gap-3">
-                                <button
+                                <motion.button
                                     onClick={() => setGuests(Math.max(1, guests - 1))}
-                                    className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                                    className="w-10 h-10 rounded-full bg-brand-100 hover:bg-brand-200 flex items-center justify-center text-brand-600 font-bold"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
                                 >
-                                    <Minus size={16} />
-                                </button>
-                                <span className="font-bold text-xl w-8 text-center">{guests}</span>
-                                <button
+                                    <Minus size={18} />
+                                </motion.button>
+                                <motion.span
+                                    className="font-bold text-2xl w-10 text-center text-brand-600"
+                                    key={guests}
+                                    initial={{ scale: 0.8 }}
+                                    animate={{ scale: 1 }}
+                                >
+                                    {guests}
+                                </motion.span>
+                                <motion.button
                                     onClick={() => setGuests(guests + 1)}
-                                    className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                                    className="w-10 h-10 rounded-full bg-brand-100 hover:bg-brand-200 flex items-center justify-center text-brand-600 font-bold"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
                                 >
-                                    <Plus size={16} />
-                                </button>
+                                    <Plus size={18} />
+                                </motion.button>
                             </div>
                         </div>
-                        <div className="flex justify-between items-center mb-4 text-sm text-gray-600">
-                            <span>Booking Fee (₹100 per person):</span>
-                            <span className="font-bold text-brand-600">₹{guests * 100}</span>
-                        </div>
-                        <button
+                        <motion.div
+                            className="flex justify-between items-center mb-6 pb-6 border-b-2 border-brand-200"
+                            layout
+                        >
+                            <span className="text-gray-700 font-medium">Booking Fee (₹100 per person):</span>
+                            <motion.span
+                                className="font-black text-xl text-brand-600"
+                                key={guests}
+                                initial={{ scale: 0.8 }}
+                                animate={{ scale: 1 }}
+                            >
+                                ₹{guests * 100}
+                            </motion.span>
+                        </motion.div>
+                        <motion.button
                             onClick={handleReservation}
                             disabled={processing}
-                            className="w-full bg-brand-500 hover:bg-brand-600 disabled:bg-gray-300 text-white py-3 rounded-lg font-bold transition-colors"
+                            className="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 disabled:from-gray-300 disabled:to-gray-300 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-brand-600/30"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                         >
                             {processing ? 'Processing...' : 'Reserve Table'}
-                        </button>
-                    </div>
-                </div>
+                        </motion.button>
+                    </motion.div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

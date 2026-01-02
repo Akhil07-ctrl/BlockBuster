@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useLocation } from '../context/LocationContext';
 import { fetchStoreById } from '../api';
 import { MapPin, Phone, Clock, ExternalLink, Tag } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const StoreDetail = () => {
     const { id } = useParams();
@@ -40,20 +41,40 @@ const StoreDetail = () => {
     if (!store) return <div className="p-10 text-center">Store not found</div>;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="container mx-auto px-4 py-12"
+        >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Image */}
-                <div>
-                    <img
+                <motion.div
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <motion.img
                         src={store.image || 'https://via.placeholder.com/600x400'}
                         alt={store.title}
-                        className="w-full rounded-xl shadow-lg"
+                        className="w-full rounded-2xl shadow-2xl"
+                        whileHover={{ scale: 1.02 }}
                     />
-                </div>
+                </motion.div>
 
                 {/* Details */}
-                <div>
-                    <h1 className="text-4xl font-bold mb-2">{store.title}</h1>
+                <motion.div
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                    <motion.h1
+                        className="text-5xl font-black mb-4 bg-gradient-to-r from-brand-600 to-blue-600 bg-clip-text text-transparent"
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                    >
+                        {store.title}
+                    </motion.h1>
 
                     {store.category && (
                         <span className="inline-block bg-brand-100 text-brand-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">
@@ -112,9 +133,9 @@ const StoreDetail = () => {
                             </div>
                         </div>
                     )}
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

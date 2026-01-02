@@ -2,11 +2,11 @@
   "name": "blockbuster-server",
   "version": "1.0.0",
   "description": "Backend for BlockBuster - Location Based Ticketing",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "seed": "node src/scripts/seed.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "seed": "node scripts/seed.js"
   },
   "keywords": [],
   "author": "",

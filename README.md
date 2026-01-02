@@ -6,7 +6,7 @@ A full-stack web application for discovering and booking movies, events, restaur
 
 **Frontend:**
 - React 19 + Vite
-- Tailwind CSS v4
+- Tailwind CSS v3
 - Clerk Authentication
 - Framer Motion, GSAP, Lenis
 - React Router, Axios
@@ -29,12 +29,12 @@ BlockBuster/
 │   │   └── pages/
 │   └── package.json
 └── server/          # Express Backend
-    ├── src/
-    │   ├── config/
-    │   ├── controllers/
-    │   ├── middleware/
-    │   ├── models/
-    │   └── routes/
+    ├── config/
+    ├── controllers/
+    ├── middleware/
+    ├── models/
+    ├── routes/
+    ├── index.js
     └── package.json
 ```
 

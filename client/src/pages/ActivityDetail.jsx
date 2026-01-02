@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
+import { useLocation } from '../context/LocationContext';
 import { fetchActivityById, createBooking, verifyPayment } from '../api';
 import { MapPin, Clock, DollarSign, Users, AlertCircle, Minus, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const ActivityDetail = () => {
     const { id } = useParams();
@@ -111,20 +113,40 @@ const ActivityDetail = () => {
     if (!activity) return <div className="p-10 text-center">Activity not found</div>;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            className="container mx-auto px-4 py-12"
+        >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Image */}
-                <div>
-                    <img
+                <motion.div
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <motion.img
                         src={activity.image || 'https://via.placeholder.com/600x400'}
                         alt={activity.title}
-                        className="w-full rounded-xl shadow-lg"
+                        className="w-full rounded-2xl shadow-2xl"
+                        whileHover={{ scale: 1.02 }}
                     />
-                </div>
+                </motion.div>
 
                 {/* Details */}
-                <div>
-                    <h1 className="text-4xl font-bold mb-2">{activity.title}</h1>
+                <motion.div
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                    <motion.h1 
+                        className="text-5xl font-black mb-4 bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent"
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                    >
+                        {activity.title}
+                    </motion.h1>
 
                     <div className="flex items-center gap-3 mb-4">
                         {activity.type && (
@@ -232,9 +254,9 @@ const ActivityDetail = () => {
                             {processing ? 'Processing...' : 'Book Now'}
                         </button>
                     </div>
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

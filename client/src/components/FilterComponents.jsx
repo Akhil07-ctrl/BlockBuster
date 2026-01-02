@@ -1,33 +1,72 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const FilterSection = ({ title, children, defaultOpen = true }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
 
     return (
         <div className="border-b border-gray-200 py-4">
-            <button
+            <motion.button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex justify-between items-center w-full text-left mb-2"
+                className="flex justify-between items-center w-full text-left"
+                whileHover={{ x: 2 }}
+                transition={{ type: 'spring', stiffness: 300 }}
             >
-                <span className="font-semibold text-gray-900">{title}</span>
-                {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-            </button>
-            {isOpen && <div className="mt-3 space-y-2">{children}</div>}
+                <motion.span 
+                    className="font-semibold text-gray-900"
+                    animate={{ color: isOpen ? '#f97316' : '#111827' }}
+                    transition={{ duration: 0.2 }}
+                >
+                    {title}
+                </motion.span>
+                <motion.div
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3, type: 'spring' }}
+                    className="text-brand-600"
+                >
+                    <ChevronDown size={18} />
+                </motion.div>
+            </motion.button>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        className="mt-3 space-y-2 overflow-hidden"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {children}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
 const Checkbox = ({ label, checked, onChange }) => (
-    <label className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
-        <input
+    <motion.label 
+        className="flex items-center cursor-pointer p-2 rounded transition-all group"
+        whileHover={{ backgroundColor: 'rgba(249, 115, 22, 0.05)' }}
+        transition={{ duration: 0.2 }}
+    >
+        <motion.input
             type="checkbox"
             checked={checked}
             onChange={onChange}
-            className="mr-2 w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+            className="mr-3 w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500 cursor-pointer accent-brand-600"
+            style={{ accentColor: '#f97316' }}
+            whileHover={{ scale: 1.1 }}
         />
-        <span className="text-sm text-gray-700">{label}</span>
-    </label>
+        <motion.span 
+            className="text-sm text-gray-700 font-medium transition-colors"
+            animate={{ color: checked ? '#f97316' : '#374151' }}
+            transition={{ duration: 0.2 }}
+        >
+            {label}
+        </motion.span>
+    </motion.label>
 );
 
 export { FilterSection, Checkbox };

@@ -4,6 +4,7 @@ import { fetchEvents } from '../api';
 import { Filter, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { FilterSection, Checkbox } from '../components/FilterComponents';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const EventsPage = () => {
     const { selectedCity } = useLocation();
@@ -47,74 +48,195 @@ const EventsPage = () => {
         setSelectedTypes([]);
     };
 
-    if (!selectedCity) return <div className="p-10 text-center">Please select a city first.</div>;
-    if (loading) return <div className="p-10 text-center">Loading events...</div>;
+    if (!selectedCity) return (
+        <motion.div 
+            className="h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+        >
+            <motion.div className="text-center">
+                <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
+                <p className="text-gray-600 font-semibold">Please select a city first.</p>
+            </motion.div>
+        </motion.div>
+    );
+    if (loading) return (
+        <motion.div 
+            className="h-screen flex items-center justify-center bg-gradient-to-br from-white to-gray-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+        >
+            <motion.div className="text-center">
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                    className="inline-block mb-4"
+                >
+                    <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full"></div>
+                </motion.div>
+                <p className="text-gray-600 font-semibold">Loading events...</p>
+            </motion.div>
+        </motion.div>
+    );
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col md:flex-row gap-8">
-                {/* Filters Sidebar */}
-                <div className="w-full md:w-1/4">
-                    <div className="bg-white p-6 rounded-xl border sticky top-20">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                                <Filter size={20} />
-                                <h3 className="font-bold text-lg">Filters</h3>
-                            </div>
-                            {selectedTypes.length > 0 && (
-                                <button onClick={clearFilters} className="text-brand-600 text-sm font-medium hover:underline">
-                                    Clear All
-                                </button>
-                            )}
+        <motion.div
+            className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+        >
+            <div className="container mx-auto px-4 py-12">
+                {/* Page Header */}
+                <motion.div
+                    className="mb-12"
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <div className="flex items-center gap-4 mb-4">
+                        <motion.div
+                            className="p-3 bg-gradient-to-br from-brand-500 to-purple-600 rounded-2xl text-white shadow-lg"
+                            whileHover={{ rotate: 10, scale: 1.1 }}
+                        >
+                            <Calendar size={32} />
+                        </motion.div>
+                        <div>
+                            <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-gray-900 via-brand-600 to-purple-600 bg-clip-text text-transparent">
+                                Events
+                            </h1>
+                            <p className="text-gray-600 font-medium mt-1">in {selectedCity.name}</p>
                         </div>
-
-                        <FilterSection title="Event Type">
-                            {eventTypes.map(type => (
-                                <Checkbox
-                                    key={type}
-                                    label={type}
-                                    checked={selectedTypes.includes(type)}
-                                    onChange={() => toggleFilter(type, selectedTypes, setSelectedTypes)}
-                                />
-                            ))}
-                        </FilterSection>
                     </div>
-                </div>
-
-                {/* Events Grid */}
-                <div className="w-full md:w-3/4">
-                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                        <Calendar className="text-brand-500" />
-                        Events in {selectedCity.name}
-                    </h2>
-
-                    <p className="text-sm text-gray-500 mb-4">
-                        Showing {filteredEvents.length} of {events.length} events
+                    <p className="text-gray-600">
+                        Showing <span className="font-bold text-brand-600">{filteredEvents.length}</span> of <span className="font-bold">{events.length}</span> events
                     </p>
+                </motion.div>
 
-                    {filteredEvents.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredEvents.map(event => (
-                                <Link to={`/events/${event._id}`} key={event._id} className="group bg-white rounded-xl border overflow-hidden hover:shadow-lg transition-shadow">
-                                    <div className="h-52 bg-gray-200 overflow-hidden">
-                                        <img src={event.image || 'https://via.placeholder.com/400x300'} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                <div className="flex flex-col lg:flex-row gap-8">
+                    {/* Filters Sidebar */}
+                    <motion.div 
+                        className="w-full lg:w-64 shrink-0"
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
+                        <motion.div 
+                            className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg sticky top-24"
+                            whileHover={{ boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-brand-50/50 to-purple-50/50">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <Filter size={20} className="text-brand-600" />
+                                        <h3 className="font-bold text-lg text-gray-900">Filters</h3>
                                     </div>
-                                    <div className="p-4">
-                                        <h3 className="font-bold text-gray-900 group-hover:text-brand-600 mb-1">{event.title}</h3>
-                                        <p className="text-sm text-gray-500">{event.venue?.name}</p>
-                                        <p className="text-sm font-semibold text-brand-600 mt-2">₹{event.price}</p>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="p-10 bg-gray-50 rounded-xl text-center text-gray-500">
-                            No events match your filters. Try adjusting the filters.
-                        </div>
-                    )}
+                                    <AnimatePresence>
+                                        {selectedTypes.length > 0 && (
+                                            <motion.button 
+                                                onClick={clearFilters} 
+                                                className="text-brand-600 text-sm font-bold hover:text-brand-700 transition-colors"
+                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.8 }}
+                                                whileHover={{ scale: 1.1 }}
+                                            >
+                                                Clear
+                                            </motion.button>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </div>
+                            <div className="p-6">
+                                <FilterSection title="Event Type">
+                                    {eventTypes.map(type => (
+                                        <Checkbox
+                                            key={type}
+                                            label={type}
+                                            checked={selectedTypes.includes(type)}
+                                            onChange={() => toggleFilter(type, selectedTypes, setSelectedTypes)}
+                                        />
+                                    ))}
+                                </FilterSection>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+
+                    {/* Events Grid */}
+                    <motion.div 
+                        className="flex-1"
+                        initial={{ x: 20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
+                        <AnimatePresence mode="wait">
+                            {filteredEvents.length > 0 ? (
+                                <motion.div
+                                    initial="hidden"
+                                    animate="visible"
+                                    exit="hidden"
+                                    variants={{
+                                        hidden: { opacity: 0 },
+                                        visible: {
+                                            opacity: 1,
+                                            transition: { staggerChildren: 0.05 }
+                                        }
+                                    }}
+                                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                                >
+                                    {filteredEvents.map(event => (
+                                        <motion.div
+                                            key={event._id}
+                                            variants={{
+                                                hidden: { opacity: 0, y: 20 },
+                                                visible: { opacity: 1, y: 0 }
+                                            }}
+                                        >
+                                            <Link to={`/events/${event._id}`} className="group block h-full">
+                                                <motion.div
+                                                    className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-md group-hover:shadow-xl transition-all h-full flex flex-col"
+                                                    whileHover={{ y: -4 }}
+                                                >
+                                                    <div className="h-48 bg-gray-200 overflow-hidden">
+                                                        <motion.img 
+                                                            src={event.image || 'https://via.placeholder.com/400x300'} 
+                                                            alt={event.title} 
+                                                            className="w-full h-full object-cover"
+                                                            whileHover={{ scale: 1.05 }}
+                                                        />
+                                                    </div>
+                                                    <div className="p-5 flex-1 flex flex-col">
+                                                        <motion.h3 
+                                                            className="font-bold text-gray-900 group-hover:text-brand-600 mb-2 line-clamp-2"
+                                                            whileHover={{ x: 4 }}
+                                                        >
+                                                            {event.title}
+                                                        </motion.h3>
+                                                        <p className="text-sm text-gray-600 mb-4 flex-1">{event.venue?.name}</p>
+                                                        <p className="text-lg font-black bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent">₹{event.price}</p>
+                                                    </div>
+                                                </motion.div>
+                                            </Link>
+                                        </motion.div>
+                                    ))}
+                                </motion.div>
+                            ) : (
+                                <motion.div 
+                                    className="col-span-full p-12 bg-white rounded-2xl border-2 border-dashed border-gray-300 text-center"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                >
+                                    <Calendar size={48} className="mx-auto mb-4 text-gray-300" />
+                                    <p className="text-gray-600 font-semibold mb-2">No events match your filters</p>
+                                    <p className="text-gray-500 text-sm">Try adjusting your filter selections</p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

@@ -17,13 +17,18 @@ import SeatBooking from './pages/SeatBooking';
 import BookingSuccess from './pages/BookingSuccess';
 import UserProfile from './pages/UserProfile';
 import NotFound from './pages/NotFound';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import FAQ from './pages/FAQ';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 import LocationModal from './components/LocationModal';
 import SearchBar from './components/SearchBar';
 import SmoothScroll from './components/SmoothScroll';
 import { SignInPage, SignUpPage } from './pages/Auth';
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import { syncUser } from './api';
-import { MapPin, Search, Menu, X } from 'lucide-react';
+import { MapPin, Search, Menu, X, Facebook, Twitter, Instagram, Linkedin, Ticket, Utensils, ShoppingBag as ShoppingIcon, Zap } from 'lucide-react';
 
 function App() {
   const { selectedCity, updateCity } = useLocation();
@@ -67,7 +72,7 @@ function App() {
 
       {/* Enhanced Navbar */}
       <motion.nav
-        className={`sticky top-0 z-40 transition-all duration-300 ${navScrolled
+        className={`sticky top-0 z-50 transition-all duration-300 ${navScrolled
           ? 'bg-white/70 shadow-lg shadow-black/5'
           : 'bg-white/40'
           } backdrop-blur-xl border-b border-gray-100/50`}
@@ -130,6 +135,7 @@ function App() {
 
             {/* Mobile Search Toggle */}
             <motion.button
+              onClick={() => setMobileMenuOpen(true)}
               className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -202,7 +208,7 @@ function App() {
             height: mobileMenuOpen ? 'auto' : 0
           }}
           transition={{ duration: 0.3 }}
-          className="md:hidden overflow-hidden border-t border-gray-100/50 bg-white/50 backdrop-blur-xl"
+          className={`md:hidden ${mobileMenuOpen ? 'overflow-visible' : 'overflow-hidden'} border-t border-gray-100/50 bg-white/50 backdrop-blur-xl`}
         >
           <div className="px-4 py-4 space-y-3">
             <div className="pb-3 border-b border-gray-100">
@@ -237,6 +243,11 @@ function App() {
             <Route path="/activities/:id" element={<ActivityDetail />} />
             <Route path="/booking/success" element={<BookingSuccess />} />
             <Route path="/profile" element={<UserProfile />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="/sign-in/*" element={<SignInPage />} />
             <Route path="/sign-up/*" element={<SignUpPage />} />
             <Route path="*" element={<NotFound />} />
@@ -289,18 +300,18 @@ function App() {
                 </p>
                 <div className="flex gap-4">
                   {[
-                    { icon: '🎬', label: 'Movies' },
-                    { icon: '🎪', label: 'Events' },
-                    { icon: '🍽️', label: 'Dining' },
-                    { icon: '🛍️', label: 'Stores' }
+                    { icon: <Ticket size={18} />, label: 'Movies' },
+                    { icon: <Zap size={18} />, label: 'Events' },
+                    { icon: <Utensils size={18} />, label: 'Dining' },
+                    { icon: <ShoppingIcon size={18} />, label: 'Stores' }
                   ].map((item) => (
                     <motion.div
                       key={item.label}
-                      className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
+                      className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer text-brand-400"
                       whileHover={{ scale: 1.1, y: -4 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <span className="text-lg">{item.icon}</span>
+                      {item.icon}
                     </motion.div>
                   ))}
                 </div>
@@ -317,17 +328,23 @@ function App() {
                   Categories
                 </h3>
                 <ul className="space-y-3">
-                  {['Movies', 'Events', 'Restaurants', 'Stores', 'Activities'].map((item) => (
-                    <motion.li key={item} whileHover={{ x: 6 }}>
-                      <a href="#" className="text-gray-400 hover:text-white font-medium transition-colors relative group">
-                        {item}
+                  {[
+                    { name: 'Movies', path: '/movies' },
+                    { name: 'Events', path: '/events' },
+                    { name: 'Restaurants', path: '/restaurants' },
+                    { name: 'Stores', path: '/stores' },
+                    { name: 'Activities', path: '/activities' }
+                  ].map((item) => (
+                    <motion.li key={item.name} whileHover={{ x: 6 }}>
+                      <Link to={item.path} className="text-gray-400 hover:text-white font-medium transition-colors relative group">
+                        {item.name}
                         <motion.span
                           className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-brand-400 to-purple-500"
                           initial={{ width: 0 }}
                           whileHover={{ width: '100%' }}
                           transition={{ duration: 0.3 }}
                         ></motion.span>
-                      </a>
+                      </Link>
                     </motion.li>
                   ))}
                 </ul>
@@ -344,17 +361,21 @@ function App() {
                   Company
                 </h3>
                 <ul className="space-y-3">
-                  {['About Us', 'Blog', 'Careers', 'Press'].map((item) => (
-                    <motion.li key={item} whileHover={{ x: 6 }}>
-                      <a href="#" className="text-gray-400 hover:text-white font-medium transition-colors relative group">
-                        {item}
+                  {[
+                    { name: 'About Us', path: '/about' },
+                    { name: 'Contact', path: '/contact' },
+                    { name: 'FAQ', path: '/faq' }
+                  ].map((item) => (
+                    <motion.li key={item.name} whileHover={{ x: 6 }}>
+                      <Link to={item.path} className="text-gray-400 hover:text-white font-medium transition-colors relative group">
+                        {item.name}
                         <motion.span
                           className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-brand-400 to-purple-500"
                           initial={{ width: 0 }}
                           whileHover={{ width: '100%' }}
                           transition={{ duration: 0.3 }}
                         ></motion.span>
-                      </a>
+                      </Link>
                     </motion.li>
                   ))}
                 </ul>
@@ -371,17 +392,20 @@ function App() {
                   Legal
                 </h3>
                 <ul className="space-y-3">
-                  {['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Contact'].map((item) => (
-                    <motion.li key={item} whileHover={{ x: 6 }}>
-                      <a href="#" className="text-gray-400 hover:text-white font-medium transition-colors relative group">
-                        {item}
+                  {[
+                    { name: 'Privacy Policy', path: '/privacy' },
+                    { name: 'Terms of Service', path: '/terms' }
+                  ].map((item) => (
+                    <motion.li key={item.name} whileHover={{ x: 6 }}>
+                      <Link to={item.path} className="text-gray-400 hover:text-white font-medium transition-colors relative group">
+                        {item.name}
                         <motion.span
                           className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-brand-400 to-purple-500"
                           initial={{ width: 0 }}
                           whileHover={{ width: '100%' }}
                           transition={{ duration: 0.3 }}
                         ></motion.span>
-                      </a>
+                      </Link>
                     </motion.li>
                   ))}
                 </ul>
@@ -412,19 +436,19 @@ function App() {
               {/* Social Links */}
               <div className="flex gap-4">
                 {[
-                  { name: 'Twitter', icon: '𝕏' },
-                  { name: 'Instagram', icon: '📷' },
-                  { name: 'LinkedIn', icon: '💼' },
-                  { name: 'Facebook', icon: 'f' }
+                  { name: 'Twitter', icon: <Twitter size={18} /> },
+                  { name: 'Instagram', icon: <Instagram size={18} /> },
+                  { name: 'LinkedIn', icon: <Linkedin size={18} /> },
+                  { name: 'Facebook', icon: <Facebook size={18} /> }
                 ].map((social) => (
                   <motion.a
                     key={social.name}
                     href="#"
-                    className="w-10 h-10 bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all"
-                    whileHover={{ scale: 1.2, y: -4 }}
+                    className="w-10 h-10 bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all border border-white/5"
+                    whileHover={{ scale: 1.2, y: -4, borderColor: 'rgba(255,255,255,0.2)' }}
                     whileTap={{ scale: 0.9 }}
                   >
-                    <span className="text-sm font-bold">{social.icon}</span>
+                    {social.icon}
                   </motion.a>
                 ))}
               </div>

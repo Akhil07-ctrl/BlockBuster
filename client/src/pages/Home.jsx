@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useLocation } from '../context/LocationContext';
 import { fetchMovies, fetchEvents, fetchRestaurants, fetchStores, fetchActivities } from '../api';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import { Film, Calendar, UtensilsCrossed, ShoppingBag, Zap, Star, Sparkles, MapPin } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import gsap from 'gsap';
@@ -117,44 +118,55 @@ HeroSection.propTypes = {
 
 
 const PremiumCard = ({ item, link, image, subtitle, badge, badgeColor = "bg-black/60", action = "Book Now" }) => {
+    const { isSignedIn } = useUser();
+    const navigate = useNavigate();
+
+    const handleClick = (e) => {
+        e.preventDefault();
+        if (!isSignedIn) {
+            navigate('/sign-in');
+        } else {
+            navigate(link);
+        }
+    };
+
     return (
         <motion.div
             className="group cursor-pointer h-full"
             whileHover={{ y: -8 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            onClick={handleClick}
         >
-            <Link to={link} className="block h-full">
-                <div className="relative rounded-2xl overflow-hidden aspect-[3/4] bg-gray-200 mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                    <img
-                        src={image || 'https://via.placeholder.com/400x600'}
-                        alt={item.title || item.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative rounded-2xl overflow-hidden aspect-[3/4] bg-gray-200 mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                <img
+                    src={image || 'https://via.placeholder.com/400x600'}
+                    alt={item.title || item.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
 
-                    {/* Badge */}
-                    {badge && (
-                        <div className={`absolute top-3 right-3 ${badgeColor} backdrop-blur-md text-white px-3 py-1 rounded-lg text-xs font-bold border border-white/20`}>
-                            {badge}
-                        </div>
-                    )}
-
-                    <div className="absolute inset-x-0 bottom-0 p-4 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                        <button className="bg-brand-600 text-white w-full py-2.5 rounded-xl font-bold text-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75">
-                            {action}
-                        </button>
+                {/* Badge */}
+                {badge && (
+                    <div className={`absolute top-3 right-3 ${badgeColor} backdrop-blur-md text-white px-3 py-1 rounded-lg text-xs font-bold border border-white/20`}>
+                        {badge}
                     </div>
-                </div>
+                )}
 
-                <div className="space-y-1">
-                    <h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-brand-600 transition-colors">
-                        {item.title || item.name}
-                    </h3>
-                    <p className="text-sm font-medium text-gray-500 line-clamp-1">
-                        {subtitle || 'N/A'}
-                    </p>
+                <div className="absolute inset-x-0 bottom-0 p-4 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    <button className="bg-brand-600 text-white w-full py-2.5 rounded-xl font-bold text-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75">
+                        {action}
+                    </button>
                 </div>
-            </Link>
+            </div>
+
+            <div className="space-y-1">
+                <h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-brand-600 transition-colors">
+                    {item.title || item.name}
+                </h3>
+                <p className="text-sm font-medium text-gray-500 line-clamp-1">
+                    {subtitle || 'N/A'}
+                </p>
+            </div>
         </motion.div>
     );
 };
@@ -416,7 +428,7 @@ const Home = () => {
 
             {/* Sticky Tab Navigation */}
             <div
-                className={`sticky top-16 z-[100] transition-all duration-300 ${isNavSticky
+                className={`sticky top-16 z-40 transition-all duration-300 ${isNavSticky
                     ? 'bg-white/80 backdrop-blur-xl shadow-lg py-4 border-b border-gray-100'
                     : 'bg-transparent py-6'
                     }`}

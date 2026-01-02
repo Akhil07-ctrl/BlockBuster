@@ -75,11 +75,15 @@ const UserProfile = () => {
                             <div key={booking._id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
-                                        <span className="text-xs font-semibold uppercase text-gray-500">{booking.entityType}</span>
-                                        <h3 className="text-lg font-bold mt-1">Booking #{booking._id.slice(-8)}</h3>
+                                        <span className="text-xs font-semibold uppercase text-brand-500 tracking-wider">
+                                            {booking.entityType} • {booking.paymentStatus === 'completed' ? 'Paid' : 'Unpaid'}
+                                        </span>
+                                        <h3 className="text-xl font-black mt-1 text-gray-900 uppercase">
+                                            {booking.entityId?.title || booking.entityId?.name || `Booking #${booking._id.slice(-6)}`}
+                                        </h3>
                                     </div>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(booking.status)}`}>
-                                        {booking.status.toUpperCase()}
+                                    <span className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-sm ${getStatusColor(booking.status)}`}>
+                                        {booking.status}
                                     </span>
                                 </div>
 

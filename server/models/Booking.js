@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bookingSchema = new mongoose.Schema({
     userId: { type: String, required: true }, // Clerk User ID
     email: { type: String, required: true },
-    entityId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    entityId: { type: mongoose.Schema.Types.ObjectId, refPath: 'entityType', required: true },
     entityType: { type: String, enum: ['Movie', 'Event', 'Restaurant', 'Store', 'Activity'], required: true },
     venueId: { type: mongoose.Schema.Types.ObjectId, ref: 'Venue' },
     date: { type: Date },

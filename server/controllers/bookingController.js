@@ -101,6 +101,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
 const getUserBookings = asyncHandler(async (req, res) => {
     const bookings = await Booking.find({ userId: req.params.userId })
         .populate('venueId')
+        .populate('entityId')
         .sort({ createdAt: -1 });
     res.json(bookings);
 });

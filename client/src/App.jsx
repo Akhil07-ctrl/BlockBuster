@@ -26,6 +26,7 @@ import LocationModal from './components/LocationModal';
 import SearchBar from './components/SearchBar';
 import SmoothScroll from './components/SmoothScroll';
 import { SignInPage, SignUpPage } from './pages/Auth';
+import ScrollToTop from './components/ScrollToTop';
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import { syncUser } from './api';
 import { MapPin, Search, Menu, X, Facebook, Twitter, Instagram, Linkedin, Ticket, Utensils, ShoppingBag as ShoppingIcon, Zap } from 'lucide-react';
@@ -68,6 +69,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
+      <ScrollToTop />
       <LocationModal />
 
       {/* Enhanced Navbar */}

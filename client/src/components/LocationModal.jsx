@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from '../context/LocationContext';
 import { fetchCities } from '../api';
 import { MapPin, X, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import gsap from 'gsap';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 const LocationModal = () => {
     const { selectedCity, updateCity } = useLocation();
@@ -94,7 +93,7 @@ const LocationModal = () => {
             {isOpen && (
                 <div className="fixed inset-0 z-50">
                     {/* Backdrop */}
-                    <motion.div
+                    <Motion.div
                         variants={backdropVariants}
                         initial="hidden"
                         animate="visible"
@@ -106,7 +105,7 @@ const LocationModal = () => {
 
                     {/* Modal Container */}
                     <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-                        <motion.div
+                        <Motion.div
                             variants={modalVariants}
                             initial="hidden"
                             animate="visible"
@@ -119,86 +118,86 @@ const LocationModal = () => {
                         >
                             {/* Animated Background Elements */}
                             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                                <motion.div
+                                <Motion.div
                                     className="absolute -top-32 -right-32 w-64 h-64 bg-brand-200/20 rounded-full blur-3xl"
                                     animate={{ y: [0, 20, 0] }}
                                     transition={{ duration: 6, repeat: Infinity }}
-                                ></motion.div>
-                                <motion.div
+                                ></Motion.div>
+                                <Motion.div
                                     className="absolute -bottom-32 -left-32 w-64 h-64 bg-purple-200/20 rounded-full blur-3xl"
                                     animate={{ y: [0, -20, 0] }}
                                     transition={{ duration: 8, repeat: Infinity }}
-                                ></motion.div>
+                                ></Motion.div>
                             </div>
 
                             {/* Content */}
                             <div className="relative z-10">
                                 {/* Header */}
-                                <motion.div
-                                    className="px-8 pt-8 pb-6 border-b border-gray-200/50 bg-gradient-to-r from-brand-50/50 via-white to-purple-50/50"
+                                <Motion.div
+                                    className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-6 border-b border-gray-200/50 bg-gradient-to-r from-brand-50/50 via-white to-purple-50/50"
                                     initial={{ y: -20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.2 }}
                                 >
                                     <div className="flex justify-between items-start">
-                                        <motion.div
+                                        <Motion.div
                                             initial={{ x: -20, opacity: 0 }}
                                             animate={{ x: 0, opacity: 1 }}
                                             transition={{ delay: 0.3 }}
                                         >
                                             <div className="flex items-center gap-3 mb-2">
-                                                <motion.div
-                                                    className="p-2.5 bg-gradient-to-br from-brand-500 to-purple-600 rounded-xl text-white shadow-lg"
+                                                <Motion.div
+                                                    className="p-2 sm:p-2.5 bg-gradient-to-br from-brand-500 to-purple-600 rounded-xl text-white shadow-lg"
                                                     animate={{ rotate: 360 }}
                                                     transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                                                 >
-                                                    <MapPin size={24} />
-                                                </motion.div>
-                                                <h2 className="text-3xl font-black bg-gradient-to-r from-gray-900 via-brand-600 to-purple-600 bg-clip-text text-transparent">
+                                                    <MapPin size={20} className="sm:w-6 sm:h-6" />
+                                                </Motion.div>
+                                                <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-gray-900 via-brand-600 to-purple-600 bg-clip-text text-transparent">
                                                     Select Your City
                                                 </h2>
                                             </div>
-                                            <p className="text-gray-600 font-medium ml-11">
+                                            <p className="text-sm sm:text-base text-gray-600 font-medium ml-10 sm:ml-11">
                                                 Discover amazing experiences near you
                                             </p>
-                                        </motion.div>
+                                        </Motion.div>
                                         {selectedCity && (
-                                            <motion.button
+                                            <Motion.button
                                                 onClick={() => setIsOpen(false)}
                                                 className="p-2 hover:bg-gray-200/50 rounded-xl transition-colors"
                                                 whileHover={{ scale: 1.1 }}
                                                 whileTap={{ scale: 0.95 }}
                                             >
-                                                <X size={24} className="text-gray-700" />
-                                            </motion.button>
+                                                <X size={20} className="sm:w-6 sm:h-6 text-gray-700" />
+                                            </Motion.button>
                                         )}
                                     </div>
-                                </motion.div>
+                                </Motion.div>
 
                                 {/* Cities Grid */}
                                 <div
-                                    className="p-8 max-h-[60vh] overflow-y-auto"
+                                    className="p-4 sm:p-8 max-h-[60vh] overflow-y-auto"
                                     data-lenis-prevent
                                 >
                                     {loading ? (
                                         <div className="py-20 text-center">
-                                            <motion.div
+                                            <Motion.div
                                                 animate={{ rotate: 360 }}
                                                 transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                                                 className="inline-block mb-4"
                                             >
                                                 <div className="w-12 h-12 border-3 border-brand-200 border-t-brand-600 rounded-full"></div>
-                                            </motion.div>
+                                            </Motion.div>
                                             <p className="text-gray-600 font-medium font-brand">Locating Cities...</p>
                                         </div>
                                     ) : cities.length > 0 ? (
-                                        <motion.div
+                                        <Motion.div
                                             className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5 pb-4"
                                             initial="hidden"
                                             animate="visible"
                                         >
                                             {cities.map((city, i) => (
-                                                <motion.button
+                                                <Motion.button
                                                     key={city._id || i}
                                                     custom={i}
                                                     variants={cityVariants}
@@ -235,7 +234,7 @@ const LocationModal = () => {
 
                                                     {/* Selection indicator */}
                                                     {(selectedCityLocal?._id === city._id || selectedCity?._id === city._id) && (
-                                                        <motion.div
+                                                        <Motion.div
                                                             initial={{ scale: 0 }}
                                                             animate={{ scale: 1 }}
                                                             className="absolute top-2 right-2"
@@ -243,13 +242,13 @@ const LocationModal = () => {
                                                             <div className="w-5 h-5 bg-gradient-to-br from-brand-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
                                                                 ✓
                                                             </div>
-                                                        </motion.div>
+                                                        </Motion.div>
                                                     )}
-                                                </motion.button>
+                                                </Motion.button>
                                             ))}
-                                        </motion.div>
+                                        </Motion.div>
                                     ) : (
-                                        <motion.div
+                                        <Motion.div
                                             className="py-16 text-center"
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
@@ -258,11 +257,11 @@ const LocationModal = () => {
                                                 <Sparkles size={32} className="text-brand-300" />
                                             </div>
                                             <p className="text-gray-600 font-medium">No cities discovered yet</p>
-                                        </motion.div>
+                                        </Motion.div>
                                     )}
                                 </div>
                             </div>
-                        </motion.div>
+                        </Motion.div>
                     </div>
                 </div>
             )}

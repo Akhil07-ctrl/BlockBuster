@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { fetchMovieById, createBooking, verifyPayment } from '../api';
+import Loader from '../components/Loader';
 
 const SeatBooking = () => {
     const { id } = useParams();
@@ -111,43 +112,45 @@ const SeatBooking = () => {
         }
     };
 
-    if (loading) return <div className="p-10 text-center">Loading...</div>;
+    if (loading) return <Loader />;
     if (!movie) return <div className="p-10 text-center">Movie not found</div>;
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-2">{movie.title}</h1>
-            <p className="text-gray-600 mb-8">Select your seats</p>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-center md:text-left">{movie.title}</h1>
+            <p className="text-gray-600 mb-8 text-center md:text-left">Select your seats</p>
 
             {/* Screen */}
-            <div className="mb-8">
+            <div className="mb-8 max-w-3xl mx-auto">
                 <div className="w-full h-3 bg-gradient-to-b from-gray-400 to-gray-200 rounded-t-full mb-2"></div>
-                <p className="text-center text-sm text-gray-500">SCREEN</p>
+                <p className="text-center text-sm text-gray-500 uppercase tracking-widest">Screen</p>
             </div>
 
             {/* Seats Grid */}
-            <div className="max-w-3xl mx-auto mb-8">
-                {rows.map(row => (
-                    <div key={row} className="flex justify-center gap-2 mb-2">
-                        <span className="w-8 text-center font-bold text-gray-600">{row}</span>
-                        {[...Array(seatsPerRow)].map((_, i) => {
-                            const seatNumber = `${row}${i + 1}`;
-                            const isSelected = selectedSeats.includes(seatNumber);
-                            return (
-                                <button
-                                    key={seatNumber}
-                                    onClick={() => toggleSeat(seatNumber)}
-                                    className={`w-8 h-8 rounded-t-lg border-2 transition-all ${isSelected
-                                            ? 'bg-brand-500 border-brand-600 text-white'
-                                            : 'bg-gray-200 border-gray-300 hover:bg-gray-300'
-                                        }`}
-                                >
-                                    {i + 1}
-                                </button>
-                            );
-                        })}
-                    </div>
-                ))}
+            <div className="mb-12 overflow-x-auto no-scrollbar pb-6">
+                <div className="max-w-3xl mx-auto min-w-max px-4">
+                    {rows.map(row => (
+                        <div key={row} className="flex justify-center gap-2 mb-3">
+                            <span className="w-8 h-8 flex items-center justify-center font-bold text-gray-400 text-sm">{row}</span>
+                            {[...Array(seatsPerRow)].map((_, i) => {
+                                const seatNumber = `${row}${i + 1}`;
+                                const isSelected = selectedSeats.includes(seatNumber);
+                                return (
+                                    <button
+                                        key={seatNumber}
+                                        onClick={() => toggleSeat(seatNumber)}
+                                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-t-xl border-2 transition-all flex items-center justify-center text-xs font-bold ${isSelected
+                                                ? 'bg-brand-500 border-brand-600 text-white shadow-lg shadow-brand-500/30'
+                                                : 'bg-white border-gray-200 text-gray-600 hover:border-brand-400 hover:text-brand-600'
+                                            }`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* Legend */}

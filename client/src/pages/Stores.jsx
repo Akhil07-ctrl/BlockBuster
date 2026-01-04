@@ -4,6 +4,7 @@ import { fetchStores } from '../api';
 import { Filter, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { FilterSection, Checkbox } from '../components/FilterComponents';
+import Loader from '../components/Loader';
 
 const StoresPage = () => {
     const { selectedCity } = useLocation();
@@ -48,7 +49,7 @@ const StoresPage = () => {
     };
 
     if (!selectedCity) return <div className="p-10 text-center">Please select a city first.</div>;
-    if (loading) return <div className="p-10 text-center">Loading stores...</div>;
+    if (loading) return <Loader />;
 
     return (
         <div className="container mx-auto px-4 py-8">

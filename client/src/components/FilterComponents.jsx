@@ -1,36 +1,36 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 const FilterSection = ({ title, children, defaultOpen = true }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
 
     return (
         <div className="border-b border-gray-200 py-4">
-            <motion.button
+            <Motion.button
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex justify-between items-center w-full text-left"
                 whileHover={{ x: 2 }}
                 transition={{ type: 'spring', stiffness: 300 }}
             >
-                <motion.span 
+                <Motion.span 
                     className="font-semibold text-gray-900"
                     animate={{ color: isOpen ? '#f97316' : '#111827' }}
                     transition={{ duration: 0.2 }}
                 >
                     {title}
-                </motion.span>
-                <motion.div
+                </Motion.span>
+                <Motion.div
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.3, type: 'spring' }}
                     className="text-brand-600"
                 >
                     <ChevronDown size={18} />
-                </motion.div>
-            </motion.button>
+                </Motion.div>
+            </Motion.button>
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
+                    <Motion.div
                         className="mt-3 space-y-2 overflow-hidden"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
@@ -38,7 +38,7 @@ const FilterSection = ({ title, children, defaultOpen = true }) => {
                         transition={{ duration: 0.3 }}
                     >
                         {children}
-                    </motion.div>
+                    </Motion.div>
                 )}
             </AnimatePresence>
         </div>
@@ -46,12 +46,12 @@ const FilterSection = ({ title, children, defaultOpen = true }) => {
 };
 
 const Checkbox = ({ label, checked, onChange }) => (
-    <motion.label 
+    <Motion.label 
         className="flex items-center cursor-pointer p-2 rounded transition-all group"
         whileHover={{ backgroundColor: 'rgba(249, 115, 22, 0.05)' }}
         transition={{ duration: 0.2 }}
     >
-        <motion.input
+        <Motion.input
             type="checkbox"
             checked={checked}
             onChange={onChange}
@@ -59,14 +59,14 @@ const Checkbox = ({ label, checked, onChange }) => (
             style={{ accentColor: '#f97316' }}
             whileHover={{ scale: 1.1 }}
         />
-        <motion.span 
+        <Motion.span 
             className="text-sm text-gray-700 font-medium transition-colors"
             animate={{ color: checked ? '#f97316' : '#374151' }}
             transition={{ duration: 0.2 }}
         >
             {label}
-        </motion.span>
-    </motion.label>
+        </Motion.span>
+    </Motion.label>
 );
 
 export { FilterSection, Checkbox };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { Users, Target, Shield, Award } from 'lucide-react';
 
 const About = () => {
@@ -7,7 +7,7 @@ const About = () => {
         <div className="min-h-screen bg-gray-50 pt-32 pb-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Hero Section */}
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-20"
@@ -19,11 +19,11 @@ const About = () => {
                         BlockBuster is your gateway to the most extraordinary experiences in your city.
                         We bring together movies, events, dining, and more in one seamless platform.
                     </p>
-                </motion.div>
+                </Motion.div>
 
                 {/* Mission & Vision */}
                 <div className="grid md:grid-cols-2 gap-12 mb-24">
-                    <motion.div
+                    <Motion.div
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
@@ -37,9 +37,9 @@ const About = () => {
                             To empower every individual with the discovery of life's most memorable moments,
                             making entertainment accessible, personalized, and truly spectacular.
                         </p>
-                    </motion.div>
+                    </Motion.div>
 
-                    <motion.div
+                    <Motion.div
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
@@ -53,7 +53,7 @@ const About = () => {
                             To become the world's most loved entertainment companion, fostering
                             communities through shared joy and unforgettable real-world adventures.
                         </p>
-                    </motion.div>
+                    </Motion.div>
                 </div>
 
                 {/* Values */}
@@ -65,7 +65,7 @@ const About = () => {
                             { icon: <Award size={24} />, title: "Excellence", desc: "We strive for perfection in curating only the best experiences for you." },
                             { icon: <Users size={24} />, title: "Community", desc: "Building meaningful connections through shared entertainment." }
                         ].map((value, i) => (
-                            <motion.div
+                            <Motion.div
                                 key={i}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -78,7 +78,7 @@ const About = () => {
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">{value.title}</h3>
                                 <p className="text-gray-600 leading-relaxed">{value.desc}</p>
-                            </motion.div>
+                            </Motion.div>
                         ))}
                     </div>
                 </div>

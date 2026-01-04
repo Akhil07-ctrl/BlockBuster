@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 
 const LocationContext = createContext();
@@ -29,4 +29,5 @@ LocationProvider.propTypes = {
     children: PropTypes.node.isRequired,
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLocation = () => useContext(LocationContext);

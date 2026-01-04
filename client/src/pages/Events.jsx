@@ -4,7 +4,8 @@ import { fetchEvents } from '../api';
 import { Filter, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { FilterSection, Checkbox } from '../components/FilterComponents';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
+import Loader from '../components/Loader';
 
 const EventsPage = () => {
     const { selectedCity } = useLocation();
@@ -49,38 +50,21 @@ const EventsPage = () => {
     };
 
     if (!selectedCity) return (
-        <motion.div 
+        <Motion.div 
             className="h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
         >
-            <motion.div className="text-center">
+            <Motion.div className="text-center">
                 <Calendar size={48} className="mx-auto mb-4 text-gray-400" />
                 <p className="text-gray-600 font-semibold">Please select a city first.</p>
-            </motion.div>
-        </motion.div>
+            </Motion.div>
+        </Motion.div>
     );
-    if (loading) return (
-        <motion.div 
-            className="h-screen flex items-center justify-center bg-gradient-to-br from-white to-gray-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-        >
-            <motion.div className="text-center">
-                <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                    className="inline-block mb-4"
-                >
-                    <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full"></div>
-                </motion.div>
-                <p className="text-gray-600 font-semibold">Loading events...</p>
-            </motion.div>
-        </motion.div>
-    );
+    if (loading) return <Loader />;
 
     return (
-        <motion.div
+        <Motion.div
             className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -88,19 +72,19 @@ const EventsPage = () => {
         >
             <div className="container mx-auto px-4 py-12">
                 {/* Page Header */}
-                <motion.div
+                <Motion.div
                     className="mb-12"
                     initial={{ y: -20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.6 }}
                 >
                     <div className="flex items-center gap-4 mb-4">
-                        <motion.div
+                        <Motion.div
                             className="p-3 bg-gradient-to-br from-brand-500 to-purple-600 rounded-2xl text-white shadow-lg"
                             whileHover={{ rotate: 10, scale: 1.1 }}
                         >
                             <Calendar size={32} />
-                        </motion.div>
+                        </Motion.div>
                         <div>
                             <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-gray-900 via-brand-600 to-purple-600 bg-clip-text text-transparent">
                                 Events
@@ -111,17 +95,17 @@ const EventsPage = () => {
                     <p className="text-gray-600">
                         Showing <span className="font-bold text-brand-600">{filteredEvents.length}</span> of <span className="font-bold">{events.length}</span> events
                     </p>
-                </motion.div>
+                </Motion.div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Filters Sidebar */}
-                    <motion.div 
+                    <Motion.div 
                         className="w-full lg:w-64 shrink-0"
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
                     >
-                        <motion.div 
+                        <Motion.div 
                             className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg sticky top-24"
                             whileHover={{ boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
                             transition={{ duration: 0.3 }}
@@ -134,7 +118,7 @@ const EventsPage = () => {
                                     </div>
                                     <AnimatePresence>
                                         {selectedTypes.length > 0 && (
-                                            <motion.button 
+                                            <Motion.button 
                                                 onClick={clearFilters} 
                                                 className="text-brand-600 text-sm font-bold hover:text-brand-700 transition-colors"
                                                 initial={{ opacity: 0, scale: 0.8 }}
@@ -143,7 +127,7 @@ const EventsPage = () => {
                                                 whileHover={{ scale: 1.1 }}
                                             >
                                                 Clear
-                                            </motion.button>
+                                            </Motion.button>
                                         )}
                                     </AnimatePresence>
                                 </div>
@@ -160,11 +144,11 @@ const EventsPage = () => {
                                     ))}
                                 </FilterSection>
                             </div>
-                        </motion.div>
-                    </motion.div>
+                        </Motion.div>
+                    </Motion.div>
 
                     {/* Events Grid */}
-                    <motion.div 
+                    <Motion.div 
                         className="flex-1"
                         initial={{ x: 20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
@@ -172,7 +156,7 @@ const EventsPage = () => {
                     >
                         <AnimatePresence mode="wait">
                             {filteredEvents.length > 0 ? (
-                                <motion.div
+                                <Motion.div
                                     initial="hidden"
                                     animate="visible"
                                     exit="hidden"
@@ -186,7 +170,7 @@ const EventsPage = () => {
                                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                                 >
                                     {filteredEvents.map(event => (
-                                        <motion.div
+                                        <Motion.div
                                             key={event._id}
                                             variants={{
                                                 hidden: { opacity: 0, y: 20 },
@@ -194,12 +178,12 @@ const EventsPage = () => {
                                             }}
                                         >
                                             <Link to={`/events/${event._id}`} className="group block h-full">
-                                                <motion.div
+                                                <Motion.div
                                                     className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-md group-hover:shadow-xl transition-all h-full flex flex-col"
                                                     whileHover={{ y: -4 }}
                                                 >
                                                     <div className="h-48 bg-gray-200 overflow-hidden">
-                                                        <motion.img 
+                                                        <Motion.img 
                                                             src={event.image || 'https://via.placeholder.com/400x300'} 
                                                             alt={event.title} 
                                                             className="w-full h-full object-cover"
@@ -207,22 +191,22 @@ const EventsPage = () => {
                                                         />
                                                     </div>
                                                     <div className="p-5 flex-1 flex flex-col">
-                                                        <motion.h3 
+                                                        <Motion.h3 
                                                             className="font-bold text-gray-900 group-hover:text-brand-600 mb-2 line-clamp-2"
                                                             whileHover={{ x: 4 }}
                                                         >
                                                             {event.title}
-                                                        </motion.h3>
+                                                        </Motion.h3>
                                                         <p className="text-sm text-gray-600 mb-4 flex-1">{event.venue?.name}</p>
                                                         <p className="text-lg font-black bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent">₹{event.price}</p>
                                                     </div>
-                                                </motion.div>
+                                                </Motion.div>
                                             </Link>
-                                        </motion.div>
+                                        </Motion.div>
                                     ))}
-                                </motion.div>
+                                </Motion.div>
                             ) : (
-                                <motion.div 
+                                <Motion.div 
                                     className="col-span-full p-12 bg-white rounded-2xl border-2 border-dashed border-gray-300 text-center"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -230,13 +214,13 @@ const EventsPage = () => {
                                     <Calendar size={48} className="mx-auto mb-4 text-gray-300" />
                                     <p className="text-gray-600 font-semibold mb-2">No events match your filters</p>
                                     <p className="text-gray-500 text-sm">Try adjusting your filter selections</p>
-                                </motion.div>
+                                </Motion.div>
                             )}
                         </AnimatePresence>
-                    </motion.div>
+                    </Motion.div>
                 </div>
             </div>
-        </motion.div>
+        </Motion.div>
     );
 };
 

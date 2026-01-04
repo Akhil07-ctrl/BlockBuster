@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLocation } from '../context/LocationContext';
 import { fetchStoreById } from '../api';
-import { MapPin, Phone, Clock, ExternalLink, Tag } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { MapPin, Phone, Clock, ExternalLink, Tag, Heart } from 'lucide-react';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
+import Loader from '../components/Loader';
+import { useWishlist } from '../hooks/useWishlist';
 
 const StoreDetail = () => {
     const { id } = useParams();
@@ -12,6 +14,8 @@ const StoreDetail = () => {
     const [store, setStore] = useState(null);
     const [loading, setLoading] = useState(true);
     const [initialCity, setInitialCity] = useState(null);
+
+    const { isWishlisted, toggle, message: wishlistMessage } = useWishlist(id, 'Store');
 
     useEffect(() => {
         const getStore = async () => {
@@ -28,7 +32,7 @@ const StoreDetail = () => {
             }
         };
         getStore();
-    }, [id]);
+    }, [id, initialCity]);
 
     // Navigate to home when city changes
     useEffect(() => {
@@ -37,50 +41,78 @@ const StoreDetail = () => {
         }
     }, [selectedCity, initialCity, navigate]);
 
-    if (loading) return <div className="p-10 text-center">Loading...</div>;
+    if (loading) return <Loader />;
     if (!store) return <div className="p-10 text-center">Store not found</div>;
 
     return (
-        <motion.div
+        <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="container mx-auto px-4 py-12"
         >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Image */}
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, x: -30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6 }}
                 >
-                    <motion.img
+                    <Motion.img
                         src={store.image || 'https://via.placeholder.com/600x400'}
                         alt={store.title}
                         className="w-full rounded-2xl shadow-2xl"
                         whileHover={{ scale: 1.02 }}
                     />
-                </motion.div>
+                </Motion.div>
 
                 {/* Details */}
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                 >
-                    <motion.h1
+                    <Motion.h1
                         className="text-5xl font-black mb-4 bg-gradient-to-r from-brand-600 to-blue-600 bg-clip-text text-transparent"
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
                     >
                         {store.title}
-                    </motion.h1>
+                    </Motion.h1>
 
-                    {store.category && (
-                        <span className="inline-block bg-brand-100 text-brand-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">
-                            {store.category}
-                        </span>
-                    )}
+                    {/* Category & Wishlist */}
+                    <div className="flex items-center gap-4 mb-6 relative">
+                        {store.category && (
+                            <span className="inline-block bg-brand-100 text-brand-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                {store.category}
+                            </span>
+                        )}
+                        
+                        <Motion.button
+                            onClick={toggle}
+                            className={`p-2 rounded-full transition-all border-2 ${isWishlisted ? 'bg-brand-500/10 border-brand-500 text-brand-500' : 'border-gray-200 text-gray-400 hover:border-brand-500 hover:text-brand-500'}`}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title={isWishlisted ? "Remove from Hotlist" : "Add to Hotlist"}
+                        >
+                            <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
+                        </Motion.button>
+
+                        <AnimatePresence>
+                            {wishlistMessage && (
+                                <Motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 20 }}
+                                    className="absolute left-full ml-4 whitespace-nowrap"
+                                >
+                                    <span className="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg">
+                                        {wishlistMessage}
+                                    </span>
+                                </Motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
 
                     {store.description && (
                         <p className="text-gray-600 mb-6">{store.description}</p>
@@ -133,9 +165,9 @@ const StoreDetail = () => {
                             </div>
                         </div>
                     )}
-                </motion.div>
+                </Motion.div>
             </div>
-        </motion.div>
+        </Motion.div>
     );
 };
 

@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { globalSearch } from '../api';
-import { Search, X, Film, Calendar, UtensilsCrossed, ShoppingBag, Zap, ArrowRight } from 'lucide-react';
+import { Search, X, Film, Calendar, UtensilsCrossed, ShoppingBag, Zap, ArrowRight, Loader as LoaderIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLocation } from '../context/LocationContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 const SearchBar = () => {
     const { selectedCity } = useLocation();
@@ -24,19 +24,7 @@ const SearchBar = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            if (query.trim().length >= 2) {
-                performSearch();
-            } else {
-                setResults(null);
-            }
-        }, 300);
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [query, selectedCity]);
-
-    const performSearch = async () => {
+    const performSearch = useCallback(async () => {
         setLoading(true);
         try {
             const { data } = await globalSearch(query, selectedCity?.slug);
@@ -47,7 +35,19 @@ const SearchBar = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [query, selectedCity]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (query.trim().length >= 2) {
+                performSearch();
+            } else {
+                setResults(null);
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [query, selectedCity, performSearch]);
 
     const clearSearch = () => {
         setQuery('');
@@ -64,10 +64,6 @@ const SearchBar = () => {
             case 'activities': return <Zap size={16} />;
             default: return null;
         }
-    };
-
-    const getCategoryRoute = (category, id) => {
-        return `/${category}/${id}`;
     };
 
     const resultVariants = {
@@ -96,24 +92,24 @@ const SearchBar = () => {
     return (
         <div ref={searchRef} className="relative flex-1 max-w-md w-full">
             {/* Search Input Container */}
-            <motion.div 
+            <Motion.div 
                 className="relative group"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
             >
-                <motion.div
+                <Motion.div
                     className="absolute inset-0 bg-gradient-to-r from-brand-500/0 via-brand-500/0 to-brand-500/0 rounded-xl group-hover:from-brand-500/10 group-hover:via-purple-500/10 group-hover:to-brand-500/10 transition-all duration-300 pointer-events-none"
                     initial={false}
-                ></motion.div>
+                ></Motion.div>
 
                 <div className="relative flex items-center">
-                    <motion.div
+                    <Motion.div
                         className="absolute left-4 text-gray-400 group-focus-within:text-brand-600 transition-colors"
                         whileHover={{ scale: 1.1 }}
                     >
                         <Search size={18} />
-                    </motion.div>
+                    </Motion.div>
 
                     <input
                         type="text"
@@ -126,7 +122,7 @@ const SearchBar = () => {
 
                     <AnimatePresence>
                         {query && (
-                            <motion.button
+                            <Motion.button
                                 onClick={clearSearch}
                                 className="absolute right-4 text-gray-400 hover:text-gray-600"
                                 initial={{ opacity: 0, scale: 0.8 }}
@@ -136,16 +132,16 @@ const SearchBar = () => {
                                 whileTap={{ scale: 0.95 }}
                             >
                                 <X size={18} />
-                            </motion.button>
+                            </Motion.button>
                         )}
                     </AnimatePresence>
                 </div>
-            </motion.div>
+            </Motion.div>
 
             {/* Search Results Dropdown */}
             <AnimatePresence>
                 {isOpen && results && (
-                    <motion.div
+                    <Motion.div
                         variants={resultVariants}
                         initial="hidden"
                         animate="visible"
@@ -158,24 +154,24 @@ const SearchBar = () => {
                         }}
                     >
                         {loading && (
-                            <motion.div 
+                            <Motion.div 
                                 className="p-8 text-center"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                             >
-                                <motion.div
+                                <Motion.div
                                     animate={{ rotate: 360 }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                                    className="inline-block mb-4"
+                                    transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                                    className="inline-block mb-4 text-brand-600"
                                 >
-                                    <div className="w-8 h-8 border-3 border-brand-200 border-t-brand-600 rounded-full"></div>
-                                </motion.div>
+                                    <LoaderIcon size={32} />
+                                </Motion.div>
                                 <p className="text-gray-500 font-medium">Searching...</p>
-                            </motion.div>
+                            </Motion.div>
                         )}
 
                         {!loading && results.total === 0 && (
-                            <motion.div 
+                            <Motion.div 
                                 className="p-8 text-center"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -185,7 +181,7 @@ const SearchBar = () => {
                                 </div>
                                 <p className="text-gray-600 font-medium">No results found for "{query}"</p>
                                 <p className="text-sm text-gray-500 mt-1">Try different keywords</p>
-                            </motion.div>
+                            </Motion.div>
                         )}
 
                         {!loading && results.total > 0 && (
@@ -266,7 +262,7 @@ const SearchBar = () => {
                                 )}
                             </div>
                         )}
-                    </motion.div>
+                    </Motion.div>
                 )}
             </AnimatePresence>
         </div>
@@ -284,7 +280,7 @@ const SearchCategory = ({
     categoryVariants,
     index 
 }) => (
-    <motion.div
+    <Motion.div
         custom={index}
         variants={categoryVariants}
         initial="hidden"
@@ -297,7 +293,7 @@ const SearchCategory = ({
         </div>
         <div className="px-2 pb-2 space-y-1">
             {items.map((item, i) => (
-                <motion.div
+                <Motion.div
                     key={item._id}
                     custom={i}
                     variants={itemVariants}
@@ -319,17 +315,17 @@ const SearchCategory = ({
                                 </div>
                             )}
                         </div>
-                        <motion.div
+                        <Motion.div
                             className="ml-2 text-gray-400 group-hover:text-brand-600 transition-colors opacity-0 group-hover:opacity-100"
                             whileHover={{ x: 4 }}
                         >
                             <ArrowRight size={16} />
-                        </motion.div>
+                        </Motion.div>
                     </Link>
-                </motion.div>
+                </Motion.div>
             ))}
         </div>
-    </motion.div>
+    </Motion.div>
 );
 
 export default SearchBar;

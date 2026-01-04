@@ -52,5 +52,8 @@ export const globalSearch = (query, city) => api.get(`/search?q=${query}&city=${
 
 // Users
 export const syncUser = (userData) => api.post('/users/sync', userData);
+export const toggleWishlist = (wishlistData) => api.post('/users/wishlist/toggle', wishlistData);
+export const getWishlist = (clerkId) => api.get(`/users/wishlist/${clerkId}`);
+export const getUserProfile = (clerkId) => api.get(`/users/${clerkId}`);
 
 export default api;

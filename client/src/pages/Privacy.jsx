@@ -1,12 +1,12 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 
 const Privacy = () => {
     return (
         <div className="min-h-screen bg-gray-50 pt-32 pb-20">
             <div className="max-w-4xl mx-auto px-4 sm:px-6">
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-16"
@@ -18,7 +18,7 @@ const Privacy = () => {
                         Privacy <span className="text-brand-600">Policy</span>
                     </h1>
                     <p className="text-gray-500">Last updated: January 2024</p>
-                </motion.div>
+                </Motion.div>
 
                 <div className="bg-white p-10 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 prose prose-brand max-w-none">
                     <section className="mb-10">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { HelpCircle, ChevronDown } from 'lucide-react';
 
 const FAQItem = ({ question, answer }) => {
@@ -12,14 +12,14 @@ const FAQItem = ({ question, answer }) => {
                 className="w-full py-6 flex items-center justify-between text-left hover:text-brand-600 transition-colors"
             >
                 <span className="text-lg font-bold text-gray-900">{question}</span>
-                <motion.div
+                <Motion.div
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     className="text-gray-400"
                 >
                     <ChevronDown size={20} />
-                </motion.div>
+                </Motion.div>
             </button>
-            <motion.div
+            <Motion.div
                 initial={false}
                 animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
                 className="overflow-hidden"
@@ -27,7 +27,7 @@ const FAQItem = ({ question, answer }) => {
                 <p className="pb-6 text-gray-600 leading-relaxed">
                     {answer}
                 </p>
-            </motion.div>
+            </Motion.div>
         </div>
     );
 };
@@ -59,7 +59,7 @@ const FAQ = () => {
     return (
         <div className="min-h-screen bg-gray-50 pt-32 pb-20">
             <div className="max-w-4xl mx-auto px-4 sm:px-6">
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-20"
@@ -73,9 +73,9 @@ const FAQ = () => {
                     <p className="text-xl text-gray-600 leading-relaxed">
                         Find quick answers to common questions about BlockBuster.
                     </p>
-                </motion.div>
+                </Motion.div>
 
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     className="bg-white px-10 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100"
@@ -83,7 +83,7 @@ const FAQ = () => {
                     {faqs.map((faq, i) => (
                         <FAQItem key={i} {...faq} />
                     ))}
-                </motion.div>
+                </Motion.div>
             </div>
         </div>
     );

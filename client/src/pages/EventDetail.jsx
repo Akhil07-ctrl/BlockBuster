@@ -3,8 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { useLocation } from '../context/LocationContext';
 import { fetchEventById, createBooking, verifyPayment } from '../api';
-import { Calendar, MapPin, Minus, Plus, User, Tag } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Calendar, MapPin, Minus, Plus, User, Tag, Heart } from 'lucide-react';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
+import { useWishlist } from '../hooks/useWishlist';
 
 const EventDetail = () => {
     const { id } = useParams();
@@ -15,6 +16,8 @@ const EventDetail = () => {
     const [quantity, setQuantity] = useState(1);
     const [processing, setProcessing] = useState(false);
     const [initialCity, setInitialCity] = useState(null);
+
+    const { isWishlisted, toggle, message: wishlistMessage } = useWishlist(id, 'Event');
 
     useEffect(() => {
         const getEvent = async () => {
@@ -29,7 +32,7 @@ const EventDetail = () => {
             }
         };
         getEvent();
-    }, [id]);
+    }, [id, initialCity]);
 
     // Navigate to home when city changes
     useEffect(() => {
@@ -109,83 +112,110 @@ const EventDetail = () => {
 
     if (!event) {
         return (
-            <motion.div
+            <Motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="min-h-screen bg-gradient-to-br from-white to-gray-50 flex items-center justify-center"
             >
-                <motion.div
+                <Motion.div
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                     className="text-brand-600 text-3xl font-bold"
                 >
                     Loading event...
-                </motion.div>
-            </motion.div>
+                </Motion.div>
+            </Motion.div>
         );
     }
 
     return (
-        <motion.div
+        <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="container mx-auto px-4 py-12"
         >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Event Image */}
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, x: -30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6 }}
                 >
-                    <motion.img
+                    <Motion.img
                         src={event.image || 'https://via.placeholder.com/600x400'}
                         alt={event.title}
                         className="w-full rounded-2xl shadow-2xl"
                         whileHover={{ scale: 1.02 }}
                     />
-                </motion.div>
+                </Motion.div>
 
                 {/* Event Details */}
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                 >
-                    <motion.h1
+                    <Motion.h1
                         className="text-5xl font-black mb-4 bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                     >
                         {event.title}
-                    </motion.h1>
+                    </Motion.h1>
 
-                    {/* Event Type */}
-                    {event.type && (
-                        <motion.span
-                            className="inline-block bg-gradient-to-r from-brand-600 to-brand-500 text-white px-4 py-2 rounded-full text-sm font-bold mb-6 shadow-lg shadow-brand-500/30"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                            whileHover={{ scale: 1.05 }}
+                    {/* Event Type & Wishlist */}
+                    <div className="flex items-center gap-4 mb-6 relative">
+                        {event.type && (
+                            <Motion.span
+                                className="inline-block bg-gradient-to-r from-brand-600 to-brand-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg shadow-brand-500/30"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.4 }}
+                                whileHover={{ scale: 1.05 }}
+                            >
+                                {event.type}
+                            </Motion.span>
+                        )}
+                        
+                        <Motion.button
+                            onClick={toggle}
+                            className={`p-2 rounded-full transition-all border-2 ${isWishlisted ? 'bg-brand-500/10 border-brand-500 text-brand-500' : 'border-gray-200 text-gray-400 hover:border-brand-500 hover:text-brand-500'}`}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title={isWishlisted ? "Remove from Hotlist" : "Add to Hotlist"}
                         >
-                            {event.type}
-                        </motion.span>
-                    )}
+                            <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
+                        </Motion.button>
+
+                        <AnimatePresence>
+                            {wishlistMessage && (
+                                <Motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 20 }}
+                                    className="absolute left-full ml-4 whitespace-nowrap"
+                                >
+                                    <span className="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg">
+                                        {wishlistMessage}
+                                    </span>
+                                </Motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
 
                     {event.description && (
-                        <motion.p
+                        <Motion.p
                             className="text-gray-600 mb-8 text-lg leading-relaxed"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.5 }}
                         >
                             {event.description}
-                        </motion.p>
+                        </Motion.p>
                     )}
 
-                    <motion.div
+                    <Motion.div
                         className="space-y-4 mb-8"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -235,10 +265,10 @@ const EventDetail = () => {
                                 </div>
                             </div>
                         )}
-                    </motion.div>
+                    </Motion.div>
 
                     {/* Booking Section */}
-                    <motion.div
+                    <Motion.div
                         className="bg-gradient-to-br from-brand-50 to-purple-50 rounded-2xl p-8 border border-brand-100"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -248,47 +278,47 @@ const EventDetail = () => {
                         <div className="flex items-center justify-between mb-6">
                             <span className="text-gray-700 font-medium">Quantity:</span>
                             <div className="flex items-center gap-3">
-                                <motion.button
+                                <Motion.button
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                     className="w-10 h-10 rounded-full bg-gradient-to-r from-brand-100 to-purple-100 hover:from-brand-200 hover:to-purple-200 flex items-center justify-center text-brand-600 font-bold transition-all"
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
                                 >
                                     <Minus size={18} />
-                                </motion.button>
-                                <motion.span
+                                </Motion.button>
+                                <Motion.span
                                     className="font-bold text-2xl w-10 text-center text-brand-600"
                                     key={quantity}
                                     initial={{ scale: 0.8 }}
                                     animate={{ scale: 1 }}
                                 >
                                     {quantity}
-                                </motion.span>
-                                <motion.button
+                                </Motion.span>
+                                <Motion.button
                                     onClick={() => setQuantity(quantity + 1)}
                                     className="w-10 h-10 rounded-full bg-gradient-to-r from-brand-100 to-purple-100 hover:from-brand-200 hover:to-purple-200 flex items-center justify-center text-brand-600 font-bold transition-all"
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
                                 >
                                     <Plus size={18} />
-                                </motion.button>
+                                </Motion.button>
                             </div>
                         </div>
-                        <motion.div
+                        <Motion.div
                             className="flex justify-between items-center mb-6 pb-6 border-b-2 border-brand-200"
                             layout
                         >
                             <span className="text-gray-700 font-medium">Total:</span>
-                            <motion.span
+                            <Motion.span
                                 className="font-black text-2xl bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent"
                                 key={quantity}
                                 initial={{ scale: 0.8 }}
                                 animate={{ scale: 1 }}
                             >
                                 ₹{quantity * event.price}
-                            </motion.span>
-                        </motion.div>
-                        <motion.button
+                            </Motion.span>
+                        </Motion.div>
+                        <Motion.button
                             onClick={handleBooking}
                             disabled={processing}
                             className="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 disabled:from-gray-300 disabled:to-gray-300 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-brand-600/30"
@@ -296,11 +326,11 @@ const EventDetail = () => {
                             whileTap={{ scale: 0.98 }}
                         >
                             {processing ? 'Processing...' : 'Proceed to Payment'}
-                        </motion.button>
-                    </motion.div>
-                </motion.div>
+                        </Motion.button>
+                    </Motion.div>
+                </Motion.div>
             </div>
-        </motion.div>
+        </Motion.div>
     );
 };
 

@@ -1,12 +1,12 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 
 const Contact = () => {
     return (
         <div className="min-h-screen bg-gray-50 pt-32 pb-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-20"
@@ -18,7 +18,7 @@ const Contact = () => {
                         Have questions or feedback? We'd love to hear from you.
                         Our team is here to help you 24/7.
                     </p>
-                </motion.div>
+                </Motion.div>
 
                 <div className="grid md:grid-cols-3 gap-12">
                     {/* Contact Info */}
@@ -59,7 +59,7 @@ const Contact = () => {
 
                     {/* Contact Form */}
                     <div className="md:col-span-2">
-                        <motion.form
+                        <Motion.form
                             initial={{ opacity: 0, scale: 0.95 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
@@ -105,7 +105,7 @@ const Contact = () => {
                                 <Send size={20} />
                                 Send Message
                             </button>
-                        </motion.form>
+                        </Motion.form>
                     </div>
                 </div>
             </div>

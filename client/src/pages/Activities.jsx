@@ -5,6 +5,8 @@ import { Filter, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { FilterSection, Checkbox } from '../components/FilterComponents';
 
+import Loader from '../components/Loader';
+
 const ActivitiesPage = () => {
     const { selectedCity } = useLocation();
     const [activities, setActivities] = useState([]);
@@ -52,7 +54,7 @@ const ActivitiesPage = () => {
     };
 
     if (!selectedCity) return <div className="p-10 text-center">Please select a city first.</div>;
-    if (loading) return <div className="p-10 text-center">Loading activities...</div>;
+    if (loading) return <Loader />;
 
     return (
         <div className="container mx-auto px-4 py-8">

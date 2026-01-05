@@ -1,34 +1,48 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
-import { fetchMovieById, createBooking, verifyPayment } from '../api';
+import { fetchMovieById, createBooking, verifyPayment, fetchVenues } from '../api';
 import Loader from '../components/Loader';
+import { MapPin, Clock, Monitor } from 'lucide-react';
 
 const SeatBooking = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { user } = useUser();
+    
+    const venueId = searchParams.get('venueId');
+    const showtime = searchParams.get('showtime');
+    const priceFromURL = parseInt(searchParams.get('price'));
+    const screenName = searchParams.get('screen');
+
     const [movie, setMovie] = useState(null);
+    const [venue, setVenue] = useState(null);
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
 
     const rows = ['A', 'B', 'C', 'D', 'E', 'F'];
     const seatsPerRow = 10;
-    const pricePerSeat = 250;
+    const pricePerSeat = priceFromURL || 250;
 
     useEffect(() => {
-        const getMovie = async () => {
+        const getData = async () => {
             try {
-                const { data } = await fetchMovieById(id);
-                setMovie(data);
+                const [movieRes] = await Promise.all([
+                    fetchMovieById(id)
+                ]);
+                setMovie(movieRes.data);
+                
+                // If we have venueId, we could fetch venue details too for display
+                // But since we don't have fetchVenueById, let's just use what we have or add it
             } catch (err) {
                 console.error(err);
             } finally {
                 setLoading(false);
             }
         };
-        getMovie();
+        getData();
     }, [id]);
 
     // Load Razorpay script
@@ -66,6 +80,8 @@ const SeatBooking = () => {
                 email: user.primaryEmailAddress.emailAddress,
                 entityId: movie._id,
                 entityType: 'Movie',
+                venueId: venueId,
+                date: new Date(), // Use selected date if available
                 seats: selectedSeats,
                 quantity: selectedSeats.length,
                 totalAmount: selectedSeats.length * pricePerSeat
@@ -117,8 +133,29 @@ const SeatBooking = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-center md:text-left">{movie.title}</h1>
-            <p className="text-gray-600 mb-8 text-center md:text-left">Select your seats</p>
+            <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
+                <div>
+                    <h1 className="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">{movie.title}</h1>
+                    <div className="flex flex-wrap gap-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                        {showtime && (
+                            <span className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-lg">
+                                <Clock size={12} className="text-brand-500" />
+                                {showtime}
+                            </span>
+                        )}
+                        {screenName && (
+                            <span className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-lg">
+                                <Monitor size={12} className="text-brand-500" />
+                                {screenName}
+                            </span>
+                        )}
+                    </div>
+                </div>
+                <div className="text-right hidden md:block">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Price per seat</p>
+                    <p className="text-2xl font-black text-brand-600">₹{pricePerSeat}</p>
+                </div>
+            </div>
 
             {/* Screen */}
             <div className="mb-8 max-w-3xl mx-auto">

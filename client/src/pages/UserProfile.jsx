@@ -175,76 +175,80 @@ const UserProfile = () => {
                                     {bookings.map((booking) => (
                                         <Motion.div 
                                             key={booking._id} 
-                                            className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm hover:shadow-xl transition-all group"
+                                            className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all group overflow-hidden"
                                             whileHover={{ y: -5 }}
                                         >
-                                            <div className="flex justify-between items-start mb-6">
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center gap-2 text-brand-600 font-bold text-xs uppercase tracking-widest">
-                                                        {getEntityTypeIcon(booking.entityType)}
-                                                        {booking.entityType}
-                                                    </div>
-                                                    <h3 className="text-2xl font-black text-gray-900 line-clamp-1 uppercase tracking-tight">
-                                                        {booking.entityId?.title || booking.entityId?.name || `Booking #${booking._id.slice(-6)}`}
-                                                    </h3>
+                                            <div className="flex flex-col sm:flex-row gap-6">
+                                                {/* Booking Image */}
+                                                <div className="w-full sm:w-32 h-48 sm:h-32 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
+                                                    <img 
+                                                        src={booking.entityType === 'Movie' ? booking.entityId?.poster : booking.entityId?.image} 
+                                                        alt={booking.entityId?.title || booking.entityId?.name} 
+                                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                                        onError={(e) => {
+                                                            e.target.src = 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=2070&auto=format&fit=crop';
+                                                        }}
+                                                    />
                                                 </div>
-                                                <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm ${getStatusColor(booking.status)}`}>
-                                                    {booking.status}
-                                                </span>
-                                            </div>
 
-                                            <div className="grid grid-cols-2 gap-6 mb-6">
-                                                <div className="space-y-4">
-                                                    {booking.date && (
-                                                        <div className="flex items-center gap-3 text-gray-600">
-                                                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-brand-500 transition-colors">
-                                                                <Calendar size={16} />
+                                                <div className="flex-grow">
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-2 text-brand-600 font-bold text-[10px] uppercase tracking-widest">
+                                                                {getEntityTypeIcon(booking.entityType)}
+                                                                {booking.entityType}
                                                             </div>
-                                                            <div className="flex flex-col">
-                                                                <span className="text-[10px] uppercase font-bold text-gray-400">Date</span>
-                                                                <span className="font-bold text-sm">{new Date(booking.date).toLocaleDateString()}</span>
-                                                            </div>
+                                                            <h3 className="text-xl font-black text-gray-900 line-clamp-1 uppercase tracking-tight">
+                                                                {booking.entityId?.title || booking.entityId?.name || `Booking #${booking._id.slice(-6)}`}
+                                                            </h3>
                                                         </div>
-                                                    )}
-                                                    {booking.venueId && (
-                                                        <div className="flex items-center gap-3 text-gray-600">
-                                                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-brand-500 transition-colors">
-                                                                <MapPin size={16} />
-                                                            </div>
-                                                            <div className="flex flex-col">
-                                                                <span className="text-[10px] uppercase font-bold text-gray-400">Venue</span>
-                                                                <span className="font-bold text-sm line-clamp-1">{booking.venueId.name}</span>
-                                                            </div>
+                                                        <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border shadow-sm flex-shrink-0 ${getStatusColor(booking.status)}`}>
+                                                            {booking.status}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-4 mb-4">
+                                                        <div className="space-y-2">
+                                                            {booking.date && (
+                                                                <div className="flex items-center gap-2 text-gray-600">
+                                                                    <div className="w-6 h-6 rounded bg-gray-50 flex items-center justify-center text-gray-400">
+                                                                        <Calendar size={12} />
+                                                                    </div>
+                                                                    <span className="font-bold text-xs">{new Date(booking.date).toLocaleDateString()}</span>
+                                                                </div>
+                                                            )}
+                                                            {booking.venueId && (
+                                                                <div className="flex items-center gap-2 text-gray-600">
+                                                                    <div className="w-6 h-6 rounded bg-gray-50 flex items-center justify-center text-gray-400">
+                                                                        <MapPin size={12} />
+                                                                    </div>
+                                                                    <span className="font-bold text-xs line-clamp-1">{booking.venueId.name}</span>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </div>
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-3 text-gray-600">
-                                                        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-brand-500 transition-colors">
-                                                            <CreditCard size={16} />
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[10px] uppercase font-bold text-gray-400">Amount</span>
-                                                            <span className="font-black text-sm text-brand-600">₹{booking.totalAmount}</span>
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center gap-2 text-gray-600">
+                                                                <div className="w-6 h-6 rounded bg-gray-50 flex items-center justify-center text-gray-400">
+                                                                    <CreditCard size={12} />
+                                                                </div>
+                                                                <span className="font-black text-xs text-brand-600">₹{booking.totalAmount}</span>
+                                                            </div>
+                                                            {booking.seats && booking.seats.length > 0 && (
+                                                                <div className="flex items-center gap-2 text-gray-600">
+                                                                    <div className="w-6 h-6 rounded bg-gray-50 flex items-center justify-center text-gray-400">
+                                                                        <Package size={12} />
+                                                                    </div>
+                                                                    <span className="font-bold text-xs truncate">Seats: {booking.seats.join(', ')}</span>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                    {booking.seats && booking.seats.length > 0 && (
-                                                        <div className="flex items-center gap-3 text-gray-600">
-                                                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-brand-500 transition-colors">
-                                                                <Package size={16} />
-                                                            </div>
-                                                            <div className="flex flex-col">
-                                                                <span className="text-[10px] uppercase font-bold text-gray-400">Seats</span>
-                                                                <span className="font-bold text-sm">{booking.seats.join(', ')}</span>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
 
-                                            <div className="pt-6 border-t border-gray-100 flex items-center justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                <span>Booked on {new Date(booking.createdAt).toLocaleString()}</span>
-                                                {booking.paymentId && <span className="text-brand-500/50">ID: {booking.paymentId.slice(0, 12)}...</span>}
+                                                    <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                                        <span>Booked on {new Date(booking.createdAt).toLocaleDateString()}</span>
+                                                        {booking.paymentId && <span className="text-brand-500/50">Ref: {booking.paymentId.slice(0, 8)}...</span>}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </Motion.div>
                                     ))}

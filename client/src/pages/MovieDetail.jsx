@@ -264,7 +264,7 @@ const MovieDetail = () => {
                                 whileTap={{ scale: 0.95 }}
                             >
                                 <Link
-                                    to={`/movies/${movie._id}/booking`}
+                                    to={`/movies/${movie._id}/showtimes`}
                                     className="flex items-center justify-center gap-2 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg shadow-brand-600/40"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M7 15h0" /><path d="M2 12h20" /><path d="M7 8h0" /></svg>

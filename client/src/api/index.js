@@ -50,6 +50,9 @@ export const getUserBookings = (userId) => api.get(`/bookings/user/${userId}`);
 // Search
 export const globalSearch = (query, city) => api.get(`/search?q=${query}&city=${city || ''}`);
 
+// Screenings
+export const fetchScreenings = (movieSlug, citySlug) => api.get(`/screenings/${movieSlug}/${citySlug}`);
+
 // Users
 export const syncUser = (userData) => api.post('/users/sync', userData);
 export const toggleWishlist = (wishlistData) => api.post('/users/wishlist/toggle', wishlistData);

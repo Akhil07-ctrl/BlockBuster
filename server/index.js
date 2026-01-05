@@ -17,6 +17,7 @@ const activityRoutes = require('./routes/activities');
 const userRoutes = require('./routes/users');
 const bookingRoutes = require('./routes/bookings');
 const searchRoutes = require('./routes/search');
+const screeningRoutes = require('./routes/screenings');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -41,6 +42,7 @@ app.use('/api/activities', activityRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/screenings', screeningRoutes);
 
 app.get('/', (req, res) => {
     res.send('BlockBuster API is running...');

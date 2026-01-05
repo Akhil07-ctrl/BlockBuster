@@ -9,6 +9,7 @@ import RestaurantsPage from './pages/Restaurants';
 import StoresPage from './pages/Stores';
 import ActivitiesPage from './pages/Activities';
 import MovieDetail from './pages/MovieDetail';
+import MovieShowtimes from './pages/MovieShowtimes';
 import EventDetail from './pages/EventDetail';
 import RestaurantDetail from './pages/RestaurantDetail';
 import StoreDetail from './pages/StoreDetail';
@@ -30,7 +31,7 @@ import Loader from './components/Loader';
 import Footer from './components/Footer';
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import { syncUser } from './api';
-import { MapPin, Search, Menu, X } from 'lucide-react';
+import { MapPin, Search, Menu, X, User } from 'lucide-react';
 
 function App() {
   const { selectedCity, updateCity } = useLocation();
@@ -176,6 +177,13 @@ function App() {
 
             <SignedIn>
               <div className="flex items-center gap-3 md:gap-4">
+                <Link 
+                  to="/profile" 
+                  className="text-sm font-semibold text-gray-700 hover:text-brand-600 transition-colors hidden md:inline-block"
+                >
+                  My Bookings
+                </Link>
+                <div className="h-4 w-px bg-gray-200 hidden md:block"></div>
                 <Motion.span
                   className="text-sm font-semibold text-gray-700 hidden md:inline-block"
                   initial={{ opacity: 0 }}
@@ -227,6 +235,16 @@ function App() {
             <div className="pb-3 border-b border-gray-100">
               <SearchBar />
             </div>
+            <SignedIn>
+              <Link
+                to="/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-gray-700 font-semibold"
+              >
+                <User size={18} />
+                My Profile & Bookings
+              </Link>
+            </SignedIn>
             <Motion.button
               onClick={() => updateCity(null)}
               className="w-full flex items-center gap-3 px-4 py-3 bg-brand-50 hover:bg-brand-100 rounded-lg transition-colors text-brand-700 font-semibold"
@@ -245,6 +263,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/movies" element={<MoviesPage />} />
             <Route path="/movies/:id" element={<MovieDetail />} />
+            <Route path="/movies/:id/showtimes" element={<MovieShowtimes />} />
             <Route path="/movies/:id/booking" element={<SeatBooking />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/:id" element={<EventDetail />} />

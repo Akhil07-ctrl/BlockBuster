@@ -2,6 +2,24 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Booking = require('../models/Booking');
 const asyncHandler = require('../middleware/asyncHandler');
+const { sendBookingConfirmation } = require('../utils/emailService');
+const Venue = require('../models/Venue');
+const Movie = require('../models/Movie');
+const Event = require('../models/Event');
+const Restaurant = require('../models/Restaurant');
+const Store = require('../models/Store');
+const Activity = require('../models/Activity');
+
+const getEntityModel = (type) => {
+    switch (type) {
+        case 'Movie': return Movie;
+        case 'Event': return Event;
+        case 'Restaurant': return Restaurant;
+        case 'Store': return Store;
+        case 'Activity': return Activity;
+        default: return null;
+    }
+};
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -84,6 +102,19 @@ const verifyPayment = asyncHandler(async (req, res) => {
         booking.paymentStatus = 'completed';
         booking.status = 'confirmed';
         await booking.save();
+
+        // Send confirmation email asynchronously
+        try {
+            const venue = await Venue.findById(booking.venueId);
+            const EntityModel = getEntityModel(booking.entityType);
+            const entity = await EntityModel.findById(booking.entityId);
+            
+            if (entity) {
+                sendBookingConfirmation(booking, entity, venue);
+            }
+        } catch (emailErr) {
+            console.error('Email preparation error:', emailErr);
+        }
 
         res.json({ success: true, booking });
     } else {

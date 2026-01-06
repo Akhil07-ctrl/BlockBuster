@@ -15,8 +15,10 @@ const transporter = nodemailer.createTransport({
  * @param {Object} venue - The venue details
  */
 const sendBookingConfirmation = async (booking, entity, venue) => {
+    console.log(`Attempting to send email to ${booking.email} for ${booking.entityType}...`);
+    
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.warn('Email credentials not found. Skipping email sending.');
+        console.warn('Email credentials not found in environment variables. Skipping email sending.');
         return;
     }
 
@@ -37,6 +39,7 @@ const sendBookingConfirmation = async (booking, entity, venue) => {
                     <p><strong>Booking ID:</strong> #${booking._id.toString().slice(-6).toUpperCase()}</p>
                     <p><strong>Type:</strong> ${booking.entityType}</p>
                     <p><strong>Date:</strong> ${bookingDate}</p>
+                    ${booking.showTime ? `<p><strong>Show Time:</strong> ${booking.showTime}</p>` : ''}
                     ${venue ? `<p><strong>Venue:</strong> ${venue.name}</p>` : ''}
                     ${booking.seats && booking.seats.length > 0 ? `<p><strong>Seats:</strong> ${booking.seats.join(', ')}</p>` : ''}
                     <p><strong>Total Amount:</strong> ₹${booking.totalAmount}</p>

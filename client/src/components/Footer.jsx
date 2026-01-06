@@ -37,12 +37,17 @@ const Footer = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
                         >
-                            <Motion.h2
-                                className="text-4xl font-black bg-gradient-to-r from-white via-brand-300 to-brand-500 bg-clip-text text-transparent mb-4"
-                                whileHover={{ scale: 1.05 }}
+                            <Motion.div 
+                                className="flex items-center gap-3 mb-4 group cursor-pointer"
+                                whileHover={{ scale: 1.02 }}
                             >
-                                BlockBuster
-                            </Motion.h2>
+                                <div className="p-2 bg-gradient-to-br from-brand-500 to-purple-600 rounded-xl shadow-lg shadow-brand-500/20">
+                                    <Ticket size={28} className="text-white transform -rotate-12 group-hover:rotate-0 transition-transform duration-300" />
+                                </div>
+                                <h2 className="text-4xl font-black bg-gradient-to-r from-white via-brand-300 to-brand-500 bg-clip-text text-transparent">
+                                    BlockBuster
+                                </h2>
+                            </Motion.div>
                             <p className="text-gray-400 text-sm leading-relaxed mb-6">
                                 Discover the extraordinary. Your premium gateway to the city's finest entertainment, dining, and adventures awaits.
                             </p>

@@ -103,13 +103,18 @@ const SeatBooking = () => {
                 handler: async function (response) {
                     try {
                         // Verify payment
-                        await verifyPayment({
+                        const verifyRes = await verifyPayment({
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_signature: response.razorpay_signature,
                             bookingId: data.booking._id
                         });
-                        navigate('/booking/success');
+                        navigate('/booking/success', { 
+                            state: { 
+                                booking: verifyRes.data.booking,
+                                movie: movie
+                            } 
+                        });
                     } catch (err) {
                         alert('Payment verification failed');
                         console.error(err);

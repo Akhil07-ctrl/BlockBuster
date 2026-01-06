@@ -11,6 +11,7 @@ const UserProfile = () => {
     const [wishlist, setWishlist] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('bookings'); // 'bookings' or 'wishlist'
+    const [bookingFilter, setBookingFilter] = useState('all'); // 'all', 'confirmed', 'pending', 'failed'
 
     useEffect(() => {
         const fetchData = async () => {
@@ -31,6 +32,11 @@ const UserProfile = () => {
         };
         fetchData();
     }, [user]);
+
+    const filteredBookings = bookings.filter(booking => {
+        if (bookingFilter === 'all') return true;
+        return booking.status === bookingFilter;
+    });
 
     const handleRemoveFromWishlist = async (itemId, itemType) => {
         try {
@@ -153,6 +159,25 @@ const UserProfile = () => {
                             exit={{ opacity: 0, y: -20 }}
                             className="space-y-6"
                         >
+                            {/* Booking Filters */}
+                            {!loading && bookings.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mb-6">
+                                    {['all', 'confirmed', 'pending', 'failed'].map((filter) => (
+                                        <button
+                                            key={filter}
+                                            onClick={() => setBookingFilter(filter)}
+                                            className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest border-2 transition-all ${
+                                                bookingFilter === filter 
+                                                ? 'bg-gray-900 border-gray-900 text-white shadow-lg' 
+                                                : 'bg-white border-gray-100 text-gray-500 hover:border-gray-200'
+                                            }`}
+                                        >
+                                            {filter}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
                             {loading ? (
                                 <div className="bg-white rounded-3xl border border-gray-100 p-20 text-center">
                                     <div className="inline-block w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
@@ -170,9 +195,23 @@ const UserProfile = () => {
                                         <ExternalLink size={18} />
                                     </Link>
                                 </div>
+                            ) : filteredBookings.length === 0 ? (
+                                <div className="bg-white rounded-3xl border border-gray-100 p-20 text-center shadow-xl shadow-gray-200/50">
+                                    <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
+                                        <Package size={48} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">No {bookingFilter} bookings</h3>
+                                    <p className="text-gray-500 mb-4">You don't have any bookings with status "{bookingFilter}".</p>
+                                    <button 
+                                        onClick={() => setBookingFilter('all')}
+                                        className="text-brand-600 font-bold hover:underline"
+                                    >
+                                        Show all bookings
+                                    </button>
+                                </div>
                             ) : (
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {bookings.map((booking) => (
+                                    {filteredBookings.map((booking) => (
                                         <Motion.div 
                                             key={booking._id} 
                                             className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all group overflow-hidden"
@@ -225,6 +264,14 @@ const UserProfile = () => {
                                                                     <span className="font-bold text-xs line-clamp-1">{booking.venueId.name}</span>
                                                                 </div>
                                                             )}
+                                                            {booking.showTime && (
+                                                                <div className="flex items-center gap-2 text-gray-600">
+                                                                    <div className="w-6 h-6 rounded bg-gray-50 flex items-center justify-center text-gray-400">
+                                                                        <Clock size={12} />
+                                                                    </div>
+                                                                    <span className="font-bold text-xs">{booking.showTime}</span>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                         <div className="space-y-2">
                                                             <div className="flex items-center gap-2 text-gray-600">
@@ -239,6 +286,14 @@ const UserProfile = () => {
                                                                         <Package size={12} />
                                                                     </div>
                                                                     <span className="font-bold text-xs truncate">Seats: {booking.seats.join(', ')}</span>
+                                                                </div>
+                                                            )}
+                                                            {booking.quantity > 0 && !booking.seats?.length && (
+                                                                <div className="flex items-center gap-2 text-gray-600">
+                                                                    <div className="w-6 h-6 rounded bg-gray-50 flex items-center justify-center text-gray-400">
+                                                                        <Package size={12} />
+                                                                    </div>
+                                                                    <span className="font-bold text-xs">Qty: {booking.quantity}</span>
                                                                 </div>
                                                             )}
                                                         </div>

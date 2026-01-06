@@ -31,7 +31,7 @@ import Loader from './components/Loader';
 import Footer from './components/Footer';
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import { syncUser } from './api';
-import { MapPin, Search, Menu, X, User } from 'lucide-react';
+import { MapPin, Search, Menu, X, User, Ticket } from 'lucide-react';
 
 function App() {
   const { selectedCity, updateCity } = useLocation();
@@ -100,7 +100,10 @@ function App() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Link to="/" className="relative group">
+            <Link to="/" className="relative group flex items-center gap-2">
+              <div className="p-1.5 bg-gradient-to-br from-brand-500 to-purple-600 rounded-lg shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-all">
+                <Ticket size={24} className="text-white transform -rotate-12 group-hover:rotate-0 transition-transform duration-300" />
+              </div>
               <span className="text-brand-600 font-black text-2xl tracking-tighter bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent">
                 BlockBuster
               </span>

@@ -191,14 +191,17 @@ const EventDetail = () => {
                         <AnimatePresence>
                             {wishlistMessage && (
                                 <Motion.div
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: 20 }}
-                                    className="absolute left-full ml-4 whitespace-nowrap"
+                                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                                    className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100]"
                                 >
-                                    <span className="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg">
+                                    <div className="bg-gray-900/90 backdrop-blur-xl text-white px-6 py-3 rounded-2xl font-bold shadow-2xl border border-white/10 flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center">
+                                            <Heart size={16} fill="white" />
+                                        </div>
                                         {wishlistMessage}
-                                    </span>
+                                    </div>
                                 </Motion.div>
                             )}
                         </AnimatePresence>

@@ -110,16 +110,19 @@ const MovieShowtimes = () => {
                                                     <div className="text-sm font-bold text-gray-900">{screen.screenName}</div>
                                                 </div>
                                                 <div className="md:col-span-3 flex flex-wrap gap-3">
-                                                    {screen.shows.map((show, showIdx) => (
-                                                        <Link
-                                                            key={showIdx}
-                                                            to={`/movies/${movie._id}/booking?venueId=${screening.venue._id}&showtime=${show.time}&price=${show.price}&screen=${screen.screenName}`}
-                                                            className="group flex flex-col items-center justify-center min-w-[100px] p-3 border-2 border-gray-100 rounded-xl hover:border-brand-500 hover:bg-brand-50 transition-all text-center"
-                                                        >
-                                                            <span className="text-sm font-black text-gray-900 group-hover:text-brand-600">{show.time}</span>
-                                                            <span className="text-[10px] font-bold text-gray-400 mt-1 uppercase">₹{show.price}</span>
-                                                        </Link>
-                                                    ))}
+                                                    {screen.shows.map((show, showIdx) => {
+                                                        const showTime = typeof show === 'object' ? show.time : show;
+                                                        return (
+                                                            <Link
+                                                                key={showIdx}
+                                                                to={`/movies/${movie._id}/booking?venueId=${screening.venue._id}&showtime=${showTime}&price=${screen.price}&screen=${screen.screenName}&date=${new Date().toISOString().split('T')[0]}`}
+                                                                className="group flex flex-col items-center justify-center min-w-[100px] p-3 border-2 border-gray-100 rounded-xl hover:border-brand-500 hover:bg-brand-50 transition-all text-center"
+                                                            >
+                                                                <span className="text-sm font-black text-gray-900 group-hover:text-brand-600">{showTime}</span>
+                                                                <span className="text-[10px] font-bold text-gray-400 mt-1 uppercase">₹{screen.price}</span>
+                                                            </Link>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         ))}

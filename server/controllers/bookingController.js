@@ -31,7 +31,24 @@ const razorpay = new Razorpay({
 // @route   POST /api/bookings
 // @access  Private (Public for now)
 const createBooking = asyncHandler(async (req, res) => {
-    const { userId, email, entityId, entityType, venueId, date, seats, quantity, totalAmount } = req.body;
+    const { userId, email, entityId, entityType, venueId, date, showTime, seats, quantity, totalAmount } = req.body;
+
+    // Check if any of the seats are already booked for movies
+    if (entityType === 'Movie') {
+        const existingBookings = await Booking.find({
+            entityId,
+            venueId,
+            date,
+            showTime,
+            status: 'confirmed',
+            seats: { $in: seats }
+        });
+
+        if (existingBookings.length > 0) {
+            res.status(400);
+            throw new Error('One or more selected seats are already booked');
+        }
+    }
 
     // Create Razorpay order
     const options = {
@@ -55,6 +72,7 @@ const createBooking = asyncHandler(async (req, res) => {
         entityType,
         venueId,
         date,
+        showTime,
         seats,
         quantity,
         totalAmount,
@@ -137,8 +155,30 @@ const getUserBookings = asyncHandler(async (req, res) => {
     res.json(bookings);
 });
 
+// @desc    Get booked seats for a specific show
+// @route   GET /api/bookings/booked-seats
+// @access  Public
+const getBookedSeats = asyncHandler(async (req, res) => {
+    const { entityId, venueId, date, showTime } = req.query;
+
+    const bookings = await Booking.find({
+        entityId,
+        venueId,
+        date,
+        showTime,
+        status: 'confirmed'
+    });
+
+    const bookedSeats = bookings.reduce((acc, booking) => {
+        return acc.concat(booking.seats);
+    }, []);
+
+    res.json(bookedSeats);
+});
+
 module.exports = {
     createBooking,
     verifyPayment,
-    getUserBookings
+    getUserBookings,
+    getBookedSeats
 };

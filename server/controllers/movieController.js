@@ -1,5 +1,6 @@
 const Movie = require('../models/Movie');
 const City = require('../models/City');
+const Screening = require('../models/Screening');
 const asyncHandler = require('../middleware/asyncHandler');
 const slugify = require('slugify');
 
@@ -10,13 +11,15 @@ const getMovies = asyncHandler(async (req, res) => {
     const { city } = req.query;
     let query = {};
 
-    // Note: Movies are typically not city-specific, but we keep this for consistency
-    // If you want city-specific movies, add city field to Movie model
     if (city) {
         const cityDoc = await City.findOne({ slug: city });
-        if (cityDoc && cityDoc._id) {
-            // For now, return all movies since Movie model doesn't have city field
-            // If you add city field to Movie model, uncomment: query.city = cityDoc._id;
+        if (cityDoc) {
+            // Find all movie IDs that have screenings in this city
+            const screeningMovieIds = await Screening.distinct('movie', { city: cityDoc._id });
+            query._id = { $in: screeningMovieIds };
+        } else {
+            // If city provided but not found, return empty
+            return res.json([]);
         }
     }
 

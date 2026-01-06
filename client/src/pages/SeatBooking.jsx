@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
-import { fetchMovieById, createBooking, verifyPayment, fetchVenues } from '../api';
+import { fetchMovieById, createBooking, verifyPayment, fetchBookedSeats } from '../api';
 import Loader from '../components/Loader';
 import { MapPin, Clock, Monitor } from 'lucide-react';
 
@@ -13,11 +13,12 @@ const SeatBooking = () => {
     
     const venueId = searchParams.get('venueId');
     const showtime = searchParams.get('showtime');
+    const date = searchParams.get('date') || new Date().toISOString().split('T')[0];
     const priceFromURL = parseInt(searchParams.get('price'));
     const screenName = searchParams.get('screen');
 
     const [movie, setMovie] = useState(null);
-    const [venue, setVenue] = useState(null);
+    const [bookedSeats, setBookedSeats] = useState([]);
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
@@ -29,13 +30,17 @@ const SeatBooking = () => {
     useEffect(() => {
         const getData = async () => {
             try {
-                const [movieRes] = await Promise.all([
-                    fetchMovieById(id)
+                const [movieRes, bookedSeatsRes] = await Promise.all([
+                    fetchMovieById(id),
+                    fetchBookedSeats({
+                        entityId: id,
+                        venueId,
+                        date,
+                        showTime: showtime
+                    })
                 ]);
                 setMovie(movieRes.data);
-                
-                // If we have venueId, we could fetch venue details too for display
-                // But since we don't have fetchVenueById, let's just use what we have or add it
+                setBookedSeats(bookedSeatsRes.data || []);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -43,7 +48,7 @@ const SeatBooking = () => {
             }
         };
         getData();
-    }, [id]);
+    }, [id, venueId, date, showtime]);
 
     // Load Razorpay script
     useEffect(() => {
@@ -81,7 +86,8 @@ const SeatBooking = () => {
                 entityId: movie._id,
                 entityType: 'Movie',
                 venueId: venueId,
-                date: new Date(), // Use selected date if available
+                date: date,
+                showTime: showtime,
                 seats: selectedSeats,
                 quantity: selectedSeats.length,
                 totalAmount: selectedSeats.length * pricePerSeat
@@ -172,13 +178,19 @@ const SeatBooking = () => {
                             {[...Array(seatsPerRow)].map((_, i) => {
                                 const seatNumber = `${row}${i + 1}`;
                                 const isSelected = selectedSeats.includes(seatNumber);
+                                const isBooked = bookedSeats.includes(seatNumber);
+                                
                                 return (
                                     <button
                                         key={seatNumber}
+                                        disabled={isBooked}
                                         onClick={() => toggleSeat(seatNumber)}
-                                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-t-xl border-2 transition-all flex items-center justify-center text-xs font-bold ${isSelected
-                                                ? 'bg-brand-500 border-brand-600 text-white shadow-lg shadow-brand-500/30'
-                                                : 'bg-white border-gray-200 text-gray-600 hover:border-brand-400 hover:text-brand-600'
+                                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-t-xl border-2 transition-all duration-300 flex items-center justify-center text-xs font-bold 
+                                            ${isBooked 
+                                                ? 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed' 
+                                                : isSelected
+                                                    ? 'bg-brand-500 border-brand-600 text-white shadow-lg shadow-brand-500/30 scale-110'
+                                                    : 'bg-white border-gray-200 text-gray-600 hover:border-brand-400 hover:text-brand-600 hover:scale-105 active:scale-95'
                                             }`}
                                     >
                                         {i + 1}
@@ -193,12 +205,16 @@ const SeatBooking = () => {
             {/* Legend */}
             <div className="flex justify-center gap-6 mb-8 text-sm">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-gray-200 border-2 border-gray-300 rounded-t-lg"></div>
+                    <div className="w-6 h-6 bg-white border-2 border-gray-200 rounded-t-lg"></div>
                     <span>Available</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="w-6 h-6 bg-brand-500 border-2 border-brand-600 rounded-t-lg"></div>
                     <span>Selected</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-gray-200 border-2 border-gray-300 rounded-t-lg"></div>
+                    <span>Booked</span>
                 </div>
             </div>
 

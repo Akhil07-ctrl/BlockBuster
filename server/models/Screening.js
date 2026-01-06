@@ -20,11 +20,8 @@ const screeningSchema = new mongoose.Schema({
         screenName: { type: String, required: true },
         language: { type: String, required: true },
         formats: [String],
-        shows: [{
-            time: { type: String, required: true },
-            price: { type: Number, required: true },
-            status: { type: String, enum: ['Available', 'Fast Filling', 'Sold Out'], default: 'Available' }
-        }]
+        price: { type: Number, required: true },
+        shows: [String]
     }]
 }, { timestamps: true });
 

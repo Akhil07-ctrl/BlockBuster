@@ -46,6 +46,7 @@ export const fetchActivityById = (id) => api.get(`/activities/${id}`);
 export const createBooking = (bookingData) => api.post('/bookings', bookingData);
 export const verifyPayment = (paymentData) => api.post('/bookings/verify-payment', paymentData);
 export const getUserBookings = (userId) => api.get(`/bookings/user/${userId}`);
+export const fetchBookedSeats = (params) => api.get('/bookings/booked-seats', { params });
 
 // Search
 export const globalSearch = (query, city) => api.get(`/search?q=${query}&city=${city || ''}`);

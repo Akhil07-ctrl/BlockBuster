@@ -7,6 +7,7 @@ const bookingSchema = new mongoose.Schema({
     entityType: { type: String, enum: ['Movie', 'Event', 'Restaurant', 'Store', 'Activity'], required: true },
     venueId: { type: mongoose.Schema.Types.ObjectId, ref: 'Venue' },
     date: { type: Date },
+    showTime: { type: String }, // Show time for movies
     seats: [String], // For movies (e.g., ["A1", "A2"])
     quantity: { type: Number, default: 1 }, // For events/restaurants/activities
     totalAmount: { type: Number, required: true },

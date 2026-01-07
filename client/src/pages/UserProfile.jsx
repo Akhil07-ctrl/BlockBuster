@@ -269,7 +269,10 @@ const UserProfile = () => {
                                                                     <div className="w-6 h-6 rounded bg-gray-50 flex items-center justify-center text-gray-400">
                                                                         <Clock size={12} />
                                                                     </div>
-                                                                    <span className="font-bold text-xs">{booking.showTime}</span>
+                                                                    <span className="font-bold text-xs">
+                                                                        {booking.showTime}
+                                                                        {booking.screenName && <span className="ml-1 opacity-60">({booking.screenName})</span>}
+                                                                    </span>
                                                                 </div>
                                                             )}
                                                         </div>

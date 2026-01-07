@@ -10,4 +10,7 @@ const venueSchema = new mongoose.Schema({
     facilities: [String]
 }, { timestamps: true });
 
+// Prevent duplicate venues in the same city
+venueSchema.index({ name: 1, city: 1 }, { unique: true });
+
 module.exports = mongoose.model('Venue', venueSchema);

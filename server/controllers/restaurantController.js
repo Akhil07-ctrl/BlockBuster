@@ -95,8 +95,17 @@ const getRestaurantById = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Delete all restaurants
+// @route   DELETE /api/restaurants
+// @access  Private/Admin
+const deleteRestaurants = asyncHandler(async (req, res) => {
+    await Restaurant.deleteMany({});
+    res.status(200).json({ message: 'All restaurants deleted successfully' });
+});
+
 module.exports = {
     getRestaurants,
     createRestaurants,
-    getRestaurantById
+    getRestaurantById,
+    deleteRestaurants
 };

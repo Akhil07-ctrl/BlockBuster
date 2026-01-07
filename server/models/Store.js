@@ -14,4 +14,6 @@ const storeSchema = new mongoose.Schema({
     tags: [String]
 }, { timestamps: true });
 
+storeSchema.index({ title: 1, venue: 1 }, { unique: true });
+
 module.exports = mongoose.model('Store', storeSchema);

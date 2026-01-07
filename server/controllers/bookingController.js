@@ -31,7 +31,7 @@ const razorpay = new Razorpay({
 // @route   POST /api/bookings
 // @access  Private (Public for now)
 const createBooking = asyncHandler(async (req, res) => {
-    const { userId, email, entityId, entityType, venueId, date, showTime, seats, quantity, totalAmount } = req.body;
+    const { userId, email, entityId, entityType, venueId, date, showTime, screenName, seats, quantity, totalAmount } = req.body;
 
     // Check if any of the seats are already booked for movies
     if (entityType === 'Movie') {
@@ -40,6 +40,7 @@ const createBooking = asyncHandler(async (req, res) => {
             venueId,
             date,
             showTime,
+            screenName,
             status: 'confirmed',
             seats: { $in: seats }
         });
@@ -73,6 +74,7 @@ const createBooking = asyncHandler(async (req, res) => {
         venueId,
         date,
         showTime,
+        screenName,
         seats,
         quantity,
         totalAmount,
@@ -121,20 +123,25 @@ const verifyPayment = asyncHandler(async (req, res) => {
         booking.status = 'confirmed';
         await booking.save();
 
+        // Populate booking for the response
+        const populatedBooking = await Booking.findById(booking._id)
+            .populate('venueId')
+            .populate('entityId');
+
         // Send confirmation email asynchronously
         try {
-            const venue = await Venue.findById(booking.venueId);
-            const EntityModel = getEntityModel(booking.entityType);
-            const entity = await EntityModel.findById(booking.entityId);
+            const venue = populatedBooking.venueId;
+            const EntityModel = getEntityModel(populatedBooking.entityType);
+            const entity = populatedBooking.entityId;
             
             if (entity) {
-                sendBookingConfirmation(booking, entity, venue);
+                sendBookingConfirmation(populatedBooking, entity, venue);
             }
         } catch (emailErr) {
             console.error('Email preparation error:', emailErr);
         }
 
-        res.json({ success: true, booking });
+        res.json({ success: true, booking: populatedBooking });
     } else {
         booking.paymentStatus = 'failed';
         booking.status = 'failed';
@@ -159,15 +166,21 @@ const getUserBookings = asyncHandler(async (req, res) => {
 // @route   GET /api/bookings/booked-seats
 // @access  Public
 const getBookedSeats = asyncHandler(async (req, res) => {
-    const { entityId, venueId, date, showTime } = req.query;
+    const { entityId, venueId, date, showTime, screenName } = req.query;
 
-    const bookings = await Booking.find({
+    const query = {
         entityId,
         venueId,
         date,
         showTime,
         status: 'confirmed'
-    });
+    };
+
+    if (screenName) {
+        query.screenName = screenName;
+    }
+
+    const bookings = await Booking.find(query);
 
     const bookedSeats = bookings.reduce((acc, booking) => {
         return acc.concat(booking.seats);

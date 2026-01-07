@@ -25,7 +25,22 @@ const getEvents = asyncHandler(async (req, res) => {
     }
 
     const events = await Event.find(query).populate('venue').populate('city');
-    res.json(events);
+    
+    // Shift past event dates to the future (today + 7 days) for realistic demo
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const updatedEvents = events.map(event => {
+        const eventDate = new Date(event.date);
+        if (eventDate < today) {
+            const newDate = new Date();
+            newDate.setDate(newDate.getDate() + 7);
+            event.date = newDate;
+        }
+        return event;
+    });
+
+    res.json(updatedEvents);
 });
 
 // @desc    Create/Update events (single or bulk with UPSERT)
@@ -88,6 +103,15 @@ const createEvents = asyncHandler(async (req, res) => {
 const getEventById = asyncHandler(async (req, res) => {
     const event = await Event.findById(req.params.id).populate('venue').populate('city');
     if (event) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const eventDate = new Date(event.date);
+
+        if (eventDate < today) {
+            const newDate = new Date();
+            newDate.setDate(newDate.getDate() + 7);
+            event.date = newDate;
+        }
         res.json(event);
     } else {
         res.status(404);
@@ -95,8 +119,17 @@ const getEventById = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Delete all events
+// @route   DELETE /api/events
+// @access  Private/Admin
+const deleteEvents = asyncHandler(async (req, res) => {
+    await Event.deleteMany({});
+    res.status(200).json({ message: 'All events deleted successfully' });
+});
+
 module.exports = {
     getEvents,
     createEvents,
-    getEventById
+    getEventById,
+    deleteEvents
 };

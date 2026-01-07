@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { CheckCircle, Home, Calendar, Ticket, MapPin, Download, ArrowRight } from 'lucide-react';
+import { CheckCircle, Home, Calendar, Ticket, MapPin, ArrowRight, XCircle, Users } from 'lucide-react';
 import { motion as Motion } from 'framer-motion';
 
 const BookingSuccess = () => {
@@ -11,7 +11,7 @@ const BookingSuccess = () => {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center bg-gray-50">
                 <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-6">
-                    <CheckCircle size={40} className="opacity-20" />
+                    <XCircle size={40} />
                 </div>
                 <h1 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">No Booking Found</h1>
                 <p className="text-gray-500 mb-8 max-w-xs mx-auto">It seems you reached this page directly. Please complete a booking to see your tickets.</p>
@@ -52,6 +52,12 @@ const BookingSuccess = () => {
         hidden: { y: 20, opacity: 0 },
         visible: { y: 0, opacity: 1 }
     };
+
+    // Determine the title and poster/image
+    const entity = booking.entityId || {};
+    const displayTitle = movie?.title || entity.title || 'Booking Details';
+    const displayImage = movie?.poster || entity.image || entity.poster;
+    const isMovie = booking.entityType === 'Movie';
 
     return (
         <div className="min-h-screen relative flex flex-col items-center justify-center p-4 py-20 bg-gray-50 overflow-hidden">
@@ -108,7 +114,7 @@ const BookingSuccess = () => {
                         Booking Successful!
                     </h1>
                     <p className="text-gray-500 font-medium mt-2">
-                        Your tickets are confirmed and ready.
+                        Your {booking.entityType?.toLowerCase() || 'booking'} is confirmed and ready.
                     </p>
                 </Motion.div>
 
@@ -121,12 +127,12 @@ const BookingSuccess = () => {
                         <div className="flex justify-between items-start">
                             <div>
                                 <p className="text-brand-100 text-[10px] font-black uppercase tracking-widest mb-1">Booking ID</p>
-                                <p className="text-xl font-mono font-bold">#{booking?._id?.toString().slice(-8).toUpperCase() || 'BT-882910'}</p>
+                                <p className="text-xl font-mono font-bold">#{booking._id?.toString().slice(-8).toUpperCase()}</p>
                             </div>
                             <div className="text-right">
                                 <p className="text-brand-100 text-[10px] font-black uppercase tracking-widest mb-1">Status</p>
                                 <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-white/20">
-                                    {booking?.status || 'Confirmed'}
+                                    {booking.status}
                                 </span>
                             </div>
                         </div>
@@ -134,14 +140,14 @@ const BookingSuccess = () => {
 
                     <div className="p-8">
                         <div className="flex flex-col md:flex-row gap-8">
-                            {movie?.poster && (
-                                <div className="w-full md:w-32 h-48 rounded-2xl overflow-hidden shadow-lg flex-shrink-0">
-                                    <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover" />
+                            {displayImage && (
+                                <div className="w-full md:w-32 h-48 rounded-2xl overflow-hidden shadow-lg flex-shrink-0 bg-gray-100">
+                                    <img src={displayImage} alt={displayTitle} className="w-full h-full object-cover" />
                                 </div>
                             )}
                             <div className="flex-1">
                                 <h2 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tight">
-                                    {movie?.title || booking?.entityId?.title || 'Movie Title'}
+                                    {displayTitle}
                                 </h2>
                                 
                                 <div className="grid grid-cols-2 gap-y-4 gap-x-6">
@@ -152,17 +158,23 @@ const BookingSuccess = () => {
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Date & Time</p>
                                             <p className="text-xs font-bold text-gray-700">
-                                                {booking?.date ? new Date(booking.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Today'} • {booking?.showTime || '7:30 PM'}
+                                                {booking.date ? new Date(booking.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'} 
+                                                {booking.showTime && ` • ${booking.showTime}`}
+                                                {booking.screenName && <span className="ml-1 opacity-60">({booking.screenName})</span>}
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-3">
                                         <div className="p-2 bg-gray-50 rounded-lg text-gray-400">
-                                            <Ticket size={16} />
+                                            {isMovie ? <Ticket size={16} /> : <Users size={16} />}
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Seats</p>
-                                            <p className="text-xs font-bold text-gray-700">{booking?.seats?.join(', ') || 'A1, A2'}</p>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">
+                                                {isMovie ? 'Seats' : 'Quantity'}
+                                            </p>
+                                            <p className="text-xs font-bold text-gray-700">
+                                                {isMovie ? (booking.seats?.join(', ') || 'N/A') : (booking.quantity || '1')}
+                                            </p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-3 col-span-2">
@@ -171,7 +183,10 @@ const BookingSuccess = () => {
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Location</p>
-                                            <p className="text-xs font-bold text-gray-700">{booking?.venueId?.name || 'PVR Cinema, Nexus Mall'}</p>
+                                            <p className="text-xs font-bold text-gray-700">
+                                                {booking.venueId?.name || 'Venue Details'}
+                                                {booking.venueId?.address && <span className="block text-[10px] font-medium text-gray-400 mt-0.5">{booking.venueId.address}</span>}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -194,7 +209,7 @@ const BookingSuccess = () => {
                             </div>
                             <div className="text-center md:text-right">
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Total Amount</p>
-                                <p className="text-2xl font-black text-brand-600">₹{booking?.totalAmount || '500'}</p>
+                                <p className="text-2xl font-black text-brand-600">₹{booking.totalAmount}</p>
                             </div>
                         </div>
                     </div>
@@ -231,7 +246,7 @@ const BookingSuccess = () => {
                     <div>
                         <h4 className="text-sm font-black text-blue-900 uppercase tracking-tight mb-1">What's Next?</h4>
                         <p className="text-xs text-blue-700 leading-relaxed font-medium">
-                            A confirmation email has been sent to your registered address. Please carry your mobile ticket and reach the venue 15 minutes before the show.
+                            A confirmation email has been sent to your registered address. Please carry your mobile ticket and reach the venue 15 minutes before the {isMovie ? 'show' : 'booking time'}.
                         </p>
                     </div>
                 </Motion.div>

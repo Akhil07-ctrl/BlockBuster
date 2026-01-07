@@ -19,6 +19,23 @@ const EventDetail = () => {
 
     const { isWishlisted, toggle, message: wishlistMessage } = useWishlist(id, 'Event');
 
+    const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        return {
+            day: days[date.getDay()],
+            date: date.getDate(),
+            month: months[date.getMonth()],
+            full: date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })
+        };
+    };
+
     useEffect(() => {
         const getEvent = async () => {
             try {
@@ -79,13 +96,18 @@ const EventDetail = () => {
                 order_id: data.order.id,
                 handler: async function (response) {
                     try {
-                        await verifyPayment({
+                        const verifyRes = await verifyPayment({
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_signature: response.razorpay_signature,
                             bookingId: data.booking._id
                         });
-                        navigate('/booking/success');
+                        navigate('/booking/success', {
+                            state: {
+                                booking: verifyRes.data.booking,
+                                movie: null // Not a movie booking
+                            }
+                        });
                     } catch (err) {
                         alert('Payment verification failed');
                         console.error(err);
@@ -177,7 +199,7 @@ const EventDetail = () => {
                                 {event.type}
                             </Motion.span>
                         )}
-                        
+
                         <Motion.button
                             onClick={toggle}
                             className={`p-2 rounded-full transition-all border-2 ${isWishlisted ? 'bg-brand-500/10 border-brand-500 text-brand-500' : 'border-gray-200 text-gray-400 hover:border-brand-500 hover:text-brand-500'}`}
@@ -225,21 +247,46 @@ const EventDetail = () => {
                         transition={{ delay: 0.6 }}
                     >
                         {event.date && (
-                            <div className="flex items-center gap-2 text-gray-700">
-                                <Calendar size={20} className="text-brand-500" />
-                                <span className="font-medium">{new Date(event.date).toLocaleDateString('en-US', {
-                                    weekday: 'long',
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })}</span>
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 text-gray-900 font-bold">
+                                    <Calendar size={20} className="text-brand-500" />
+                                    <span>Schedule</span>
+                                </div>
+                                <div className="flex items-center gap-5 bg-white p-5 rounded-[32px] border border-gray-100 shadow-sm w-fit group hover:shadow-md transition-all duration-300">
+                                    {(() => {
+                                        const dateInfo = formatDate(event.date);
+                                        return (
+                                            <>
+                                                <div className="flex flex-col items-center justify-center min-w-[70px] h-[70px] rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 text-white shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform duration-300">
+                                                    <span className="text-[11px] font-black uppercase tracking-widest opacity-80">
+                                                        {dateInfo.day}
+                                                    </span>
+                                                    <span className="text-2xl font-black leading-none my-1">
+                                                        {dateInfo.date}
+                                                    </span>
+                                                    <span className="text-[11px] font-bold uppercase tracking-widest opacity-80">
+                                                        {dateInfo.month}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col pr-6">
+                                                    <span className="text-gray-900 font-black text-xl leading-tight">
+                                                        {dateInfo.full.split(',')[0]}
+                                                    </span>
+                                                    <span className="text-gray-500 font-semibold tracking-tight">
+                                                        {dateInfo.full.split(',').slice(1).join(',')}
+                                                    </span>
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
+                                </div>
                             </div>
                         )}
 
                         {event.venue && (
-                            <div className="flex items-center gap-2 text-gray-700">
+                            <div className="flex items-center gap-2 text-gray-700 pt-2">
                                 <MapPin size={20} className="text-brand-500" />
-                                <span>{event.venue.name}{event.city && `, ${event.city.name}`}</span>
+                                <span className="font-medium">{event.venue.name}{event.city && `, ${event.city.name}`}</span>
                             </div>
                         )}
 

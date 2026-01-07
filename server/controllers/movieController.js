@@ -12,15 +12,7 @@ const getMovies = asyncHandler(async (req, res) => {
     let query = {};
 
     if (city) {
-        const cityDoc = await City.findOne({ slug: city });
-        if (cityDoc) {
-            // Find all movie IDs that have screenings in this city
-            const screeningMovieIds = await Screening.distinct('movie', { city: cityDoc._id });
-            query._id = { $in: screeningMovieIds };
-        } else {
-            // If city provided but not found, return empty
-            return res.json([]);
-        }
+        query.city = city;
     }
 
     const movies = await Movie.find(query);
@@ -70,8 +62,17 @@ const getMovieById = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Delete all movies
+// @route   DELETE /api/movies
+// @access  Private/Admin
+const deleteMovies = asyncHandler(async (req, res) => {
+    await Movie.deleteMany({});
+    res.status(200).json({ message: 'All movies deleted successfully' });
+});
+
 module.exports = {
     getMovies,
     createMovies,
-    getMovieById
+    getMovieById,
+    deleteMovies
 };

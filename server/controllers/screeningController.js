@@ -88,7 +88,16 @@ const getScreenings = asyncHandler(async (req, res) => {
     });
 });
 
+// @desc    Delete all screenings
+// @route   DELETE /api/screenings
+// @access  Private/Admin
+const deleteScreenings = asyncHandler(async (req, res) => {
+    await Screening.deleteMany({});
+    res.status(200).json({ message: 'All screenings deleted successfully' });
+});
+
 module.exports = {
     createScreening,
-    getScreenings
+    getScreenings,
+    deleteScreenings
 };

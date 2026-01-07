@@ -226,11 +226,11 @@ CategoryGrid.propTypes = {
     limit: PropTypes.number,
 };
 
-const HomeSection = ({ title, icon: Icon, data, renderCard, viewAllPath }) => {
+const HomeSection = ({ id, title, icon: Icon, data, renderCard, viewAllPath }) => {
     if (!data || data.length === 0) return null;
 
     return (
-        <section className="py-20 bg-white">
+        <section id={id} className="py-20 bg-white scroll-mt-20">
             <div className="container mx-auto px-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
                     <div className="flex items-center gap-4">
@@ -267,11 +267,75 @@ const HomeSection = ({ title, icon: Icon, data, renderCard, viewAllPath }) => {
 };
 
 HomeSection.propTypes = {
+    id: PropTypes.string,
     title: PropTypes.string.isRequired,
     icon: PropTypes.elementType.isRequired,
     data: PropTypes.array,
     renderCard: PropTypes.func.isRequired,
     viewAllPath: PropTypes.string,
+};
+
+const QuickNav = ({ activeSection }) => {
+    const categories = [
+        { id: 'movies', name: 'Movies', icon: Film, color: 'text-brand-500', bg: 'bg-brand-50' },
+        { id: 'events', name: 'Events', icon: Calendar, color: 'text-purple-500', bg: 'bg-purple-50' },
+        { id: 'dining', name: 'Dining', icon: UtensilsCrossed, color: 'text-orange-500', bg: 'bg-orange-50' },
+        { id: 'activities', name: 'Adventures', icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-50' },
+        { id: 'shopping', name: 'Shopping', icon: ShoppingBag, color: 'text-pink-500', bg: 'bg-pink-50' },
+    ];
+
+    const scrollToSection = (id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            const offset = 140; // Increased offset to account for sticky nav height
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = element.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    return (
+        <div className="sticky top-16 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm overflow-x-auto no-scrollbar">
+            <div className="container mx-auto px-4">
+                <div className="flex items-center justify-center gap-2 md:gap-8 py-4 min-w-max">
+                    {categories.map((cat) => {
+                        const isActive = activeSection === cat.id;
+                        return (
+                            <button
+                                key={cat.id}
+                                onClick={() => scrollToSection(cat.id)}
+                                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-500 whitespace-nowrap group relative ${
+                                    isActive 
+                                        ? `${cat.color} ${cat.bg} shadow-sm scale-105` 
+                                        : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                                }`}
+                            >
+                                <cat.icon size={18} className={`transition-transform duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                                <span>{cat.name}</span>
+                                {isActive && (
+                                    <Motion.div 
+                                        layoutId="activeTab"
+                                        className="absolute inset-0 border-2 border-current opacity-20 rounded-full"
+                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                    />
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+QuickNav.propTypes = {
+    activeSection: PropTypes.string
 };
 
 const Home = () => {
@@ -282,6 +346,33 @@ const Home = () => {
     const [stores, setStores] = useState([]);
     const [activities, setActivities] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeSection, setActiveSection] = useState('movies');
+
+    useEffect(() => {
+        const observerOptions = {
+            root: null,
+            rootMargin: '-30% 0px -70% 0px', // More balanced detection area
+            threshold: 0
+        };
+
+        const observerCallback = (entries) => {
+            // Find the entry that is currently intersecting
+            const intersectingEntry = entries.find(entry => entry.isIntersecting);
+            if (intersectingEntry) {
+                setActiveSection(intersectingEntry.target.id);
+            }
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+        const sections = ['movies', 'events', 'dining', 'activities', 'shopping'];
+        
+        sections.forEach((id) => {
+            const element = document.getElementById(id);
+            if (element) observer.observe(element);
+        });
+
+        return () => observer.disconnect();
+    }, [loading, movies, events, restaurants, stores, activities]);
 
     useEffect(() => {
         if (selectedCity) {
@@ -309,9 +400,11 @@ const Home = () => {
     return (
         <div className="bg-gray-50 min-h-screen">
             <HeroSection city={selectedCity} />
+            <QuickNav activeSection={activeSection} />
 
             <div className="space-y-0">
                 <HomeSection
+                    id="movies"
                     title="Recommended Movies"
                     icon={Film}
                     data={movies}
@@ -328,6 +421,7 @@ const Home = () => {
                 />
 
                 <HomeSection
+                    id="events"
                     title="Trending Events"
                     icon={Calendar}
                     data={events}
@@ -345,6 +439,7 @@ const Home = () => {
                 />
 
                 <HomeSection
+                    id="dining"
                     title="Premium Dining"
                     icon={UtensilsCrossed}
                     data={restaurants}
@@ -362,6 +457,7 @@ const Home = () => {
                 />
 
                 <HomeSection
+                    id="activities"
                     title="Exciting Adventures"
                     icon={Zap}
                     data={activities}
@@ -379,6 +475,7 @@ const Home = () => {
                 />
 
                 <HomeSection
+                    id="shopping"
                     title="Premium Shopping"
                     icon={ShoppingBag}
                     data={stores}

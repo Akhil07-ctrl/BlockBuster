@@ -8,6 +8,7 @@ const bookingSchema = new mongoose.Schema({
     venueId: { type: mongoose.Schema.Types.ObjectId, ref: 'Venue' },
     date: { type: Date },
     showTime: { type: String }, // Show time for movies
+    screenName: { type: String }, // Screen name for movies
     seats: [String], // For movies (e.g., ["A1", "A2"])
     quantity: { type: Number, default: 1 }, // For events/restaurants/activities
     totalAmount: { type: Number, required: true },
@@ -20,5 +21,8 @@ const bookingSchema = new mongoose.Schema({
     paymentStatus: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
     paymentMethod: { type: String }
 }, { timestamps: true });
+
+// Ensure unique payment order ID to prevent duplicate bookings for the same payment
+bookingSchema.index({ paymentOrderId: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);

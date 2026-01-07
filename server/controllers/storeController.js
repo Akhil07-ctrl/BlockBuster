@@ -95,8 +95,17 @@ const getStoreById = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Delete all stores
+// @route   DELETE /api/stores
+// @access  Private/Admin
+const deleteStores = asyncHandler(async (req, res) => {
+    await Store.deleteMany({});
+    res.status(200).json({ message: 'All stores deleted successfully' });
+});
+
 module.exports = {
     getStores,
     createStores,
-    getStoreById
+    getStoreById,
+    deleteStores
 };

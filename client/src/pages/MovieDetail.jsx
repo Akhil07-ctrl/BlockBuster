@@ -5,13 +5,11 @@ import { fetchMovieById } from '../api';
 import { Calendar, Clock, Star, Film, Play, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import { useUser } from '@clerk/clerk-react';
 import { useWishlist } from '../hooks/useWishlist';
 
 const MovieDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user } = useUser();
     const { selectedCity } = useLocation();
     const [movie, setMovie] = useState(null);
     const [initialCity, setInitialCity] = useState(null);

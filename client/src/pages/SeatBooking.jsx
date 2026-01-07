@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { fetchMovieById, createBooking, verifyPayment, fetchBookedSeats } from '../api';
 import Loader from '../components/Loader';
-import { MapPin, Clock, Monitor } from 'lucide-react';
+import { Clock, Monitor } from 'lucide-react';
 
 const SeatBooking = () => {
     const { id } = useParams();
@@ -27,6 +27,14 @@ const SeatBooking = () => {
     const seatsPerRow = 10;
     const pricePerSeat = priceFromURL || 250;
 
+    const isBestSeller = (row, seatIndex) => {
+        // Bottom rows: E, F (farthest from screen)
+        const bottomRows = ['E', 'F'];
+        // Middle seats: 4, 5, 6, 7
+        const middleSeats = [4, 5, 6, 7];
+        return bottomRows.includes(row) && middleSeats.includes(seatIndex + 1);
+    };
+
     useEffect(() => {
         const getData = async () => {
             try {
@@ -36,7 +44,8 @@ const SeatBooking = () => {
                         entityId: id,
                         venueId,
                         date,
-                        showTime: showtime
+                        showTime: showtime,
+                        screenName
                     })
                 ]);
                 setMovie(movieRes.data);
@@ -48,7 +57,7 @@ const SeatBooking = () => {
             }
         };
         getData();
-    }, [id, venueId, date, showtime]);
+    }, [id, venueId, date, showtime, screenName]);
 
     // Load Razorpay script
     useEffect(() => {
@@ -88,6 +97,7 @@ const SeatBooking = () => {
                 venueId: venueId,
                 date: date,
                 showTime: showtime,
+                screenName: screenName,
                 seats: selectedSeats,
                 quantity: selectedSeats.length,
                 totalAmount: selectedSeats.length * pricePerSeat
@@ -184,18 +194,21 @@ const SeatBooking = () => {
                                 const seatNumber = `${row}${i + 1}`;
                                 const isSelected = selectedSeats.includes(seatNumber);
                                 const isBooked = bookedSeats.includes(seatNumber);
+                                const isBest = isBestSeller(row, i);
                                 
                                 return (
                                     <button
                                         key={seatNumber}
                                         disabled={isBooked}
                                         onClick={() => toggleSeat(seatNumber)}
-                                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-t-xl border-2 transition-all duration-300 flex items-center justify-center text-xs font-bold 
+                                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-t-xl border-2 transition-all duration-300 flex items-center justify-center text-xs font-bold relative
                                             ${isBooked 
                                                 ? 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed' 
                                                 : isSelected
-                                                    ? 'bg-brand-500 border-brand-600 text-white shadow-lg shadow-brand-500/30 scale-110'
-                                                    : 'bg-white border-gray-200 text-gray-600 hover:border-brand-400 hover:text-brand-600 hover:scale-105 active:scale-95'
+                                                    ? 'bg-brand-500 border-brand-600 text-white shadow-lg shadow-brand-500/30 scale-110 z-10'
+                                                    : isBest
+                                                        ? 'bg-white border-amber-400 text-gray-600 shadow-[0_0_10px_rgba(251,191,36,0.2)]'
+                                                        : 'bg-white border-gray-200 text-gray-600 hover:border-brand-400 hover:text-brand-600 hover:scale-105 active:scale-95'
                                             }`}
                                     >
                                         {i + 1}
@@ -208,18 +221,23 @@ const SeatBooking = () => {
             </div>
 
             {/* Legend */}
-            <div className="flex justify-center gap-6 mb-8 text-sm">
+            <div className="flex justify-center flex-wrap gap-6 mb-8 text-sm">
                 <div className="flex items-center gap-2">
                     <div className="w-6 h-6 bg-white border-2 border-gray-200 rounded-t-lg"></div>
                     <span>Available</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-brand-500 border-2 border-brand-600 rounded-t-lg"></div>
+                    <div className="w-6 h-6 bg-brand-500 border-2 border-brand-600 rounded-t-lg shadow-sm shadow-brand-500/20"></div>
                     <span>Selected</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="w-6 h-6 bg-gray-200 border-2 border-gray-300 rounded-t-lg"></div>
                     <span>Booked</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-white border-2 border-amber-400 rounded-t-lg relative">
+                    </div>
+                    <span className="text-amber-600 font-medium">Best Seller</span>
                 </div>
             </div>
 

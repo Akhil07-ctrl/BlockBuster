@@ -15,4 +15,6 @@ const eventSchema = new mongoose.Schema({
     tags: [String]
 }, { timestamps: true });
 
+eventSchema.index({ title: 1, venue: 1, date: 1 }, { unique: true });
+
 module.exports = mongoose.model('Event', eventSchema);

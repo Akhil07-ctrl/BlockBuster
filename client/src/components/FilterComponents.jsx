@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 const FilterSection = ({ title, children, defaultOpen = true }) => {

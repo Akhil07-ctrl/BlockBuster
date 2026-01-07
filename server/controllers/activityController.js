@@ -99,8 +99,17 @@ const getActivityById = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Delete all activities
+// @route   DELETE /api/activities
+// @access  Private/Admin
+const deleteActivities = asyncHandler(async (req, res) => {
+    await Activity.deleteMany({});
+    res.status(200).json({ message: 'All activities deleted successfully' });
+});
+
 module.exports = {
     getActivities,
     createActivities,
-    getActivityById
+    getActivityById,
+    deleteActivities
 };

@@ -346,7 +346,7 @@ const UserProfile = () => {
                                         >
                                             <div className="aspect-[3/4] relative overflow-hidden bg-gray-100">
                                                 <img 
-                                                    src={item.details?.poster || item.details?.image || 'https://via.placeholder.com/400x600'} 
+                                                    src={item.details?.poster || item.details?.image || 'https://placehold.co/400x600'} 
                                                     alt={item.details?.title || item.details?.name}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                                 />

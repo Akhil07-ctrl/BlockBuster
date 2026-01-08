@@ -7,6 +7,40 @@ import { Film, Calendar, UtensilsCrossed, ShoppingBag, Zap, Star, Sparkles, MapP
 import { motion as Motion, useScroll, useTransform } from 'framer-motion';
 import Loader from '../components/Loader';
 import PropTypes from 'prop-types';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+
+const CategoryCarousel = ({ data, renderCard }) => {
+    return (
+        <div className="md:hidden py-4 overflow-visible">
+            <Swiper
+                slidesPerView={1.3}
+                centeredSlides={true}
+                spaceBetween={20}
+                grabCursor={true}
+                resistanceRatio={0.5}
+                touchRatio={1.2}
+                className="category-swiper !overflow-visible"
+            >
+                {data.map((item) => (
+                    <SwiperSlide key={item._id}>
+                        {({ isActive }) => (
+                            <Motion.div
+                                animate={{ 
+                                    scale: isActive ? 1 : 0.85,
+                                    opacity: isActive ? 1 : 0.6
+                                }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                {renderCard(item)}
+                            </Motion.div>
+                        )}
+                    </SwiperSlide>
+                ))}
+            </Swiper>
+        </div>
+    );
+};
 
 
 const HeroSection = ({ city }) => {
@@ -130,13 +164,15 @@ const PremiumCard = ({ item, link, image, subtitle, badge, badgeColor = "bg-blac
     return (
         <Motion.div
             className="group cursor-pointer h-full"
-            whileHover={{ y: -8 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            whileHover={{ 
+                y: -12,
+                transition: { type: 'spring', stiffness: 400, damping: 17 }
+            }}
             onClick={handleClick}
         >
-            <div className="relative rounded-2xl overflow-hidden aspect-[3/4] bg-gray-200 mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+            <div className="relative rounded-2xl overflow-hidden aspect-[3/4] bg-gray-200 mb-4 shadow-md group-hover:shadow-2xl group-hover:shadow-brand-500/20 transition-all duration-500">
                 <img
-                    src={image || 'https://via.placeholder.com/400x600'}
+                    src={image || 'https://placehold.co/400x600'}
                     alt={item.title || item.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
@@ -230,7 +266,7 @@ const HomeSection = ({ id, title, icon: Icon, data, renderCard, viewAllPath }) =
     if (!data || data.length === 0) return null;
 
     return (
-        <section id={id} className="py-20 bg-white scroll-mt-20">
+        <section id={id} className="py-20 bg-white scroll-mt-20 overflow-hidden">
             <div className="container mx-auto px-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
                     <div className="flex items-center gap-4">
@@ -254,13 +290,17 @@ const HomeSection = ({ id, title, icon: Icon, data, renderCard, viewAllPath }) =
                     )}
                 </div>
 
-                <CategoryGrid
-                    title={title}
-                    icon={Icon}
-                    data={data}
-                    renderCard={renderCard}
-                    limit={5}
-                />
+                <CategoryCarousel data={data} renderCard={renderCard} />
+
+                <div className="hidden md:block">
+                    <CategoryGrid
+                        title={title}
+                        icon={Icon}
+                        data={data}
+                        renderCard={renderCard}
+                        limit={5}
+                    />
+                </div>
             </div>
         </section>
     );
@@ -303,7 +343,7 @@ const QuickNav = ({ activeSection }) => {
     return (
         <div className="sticky top-16 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm overflow-x-auto no-scrollbar">
             <div className="container mx-auto px-4">
-                <div className="flex items-center justify-center gap-2 md:gap-8 py-4 min-w-max">
+                <div className="flex items-center md:justify-center gap-2 md:gap-8 py-4 min-w-max">
                     {categories.map((cat) => {
                         const isActive = activeSection === cat.id;
                         return (
@@ -314,7 +354,7 @@ const QuickNav = ({ activeSection }) => {
                                     isActive 
                                         ? `${cat.color} ${cat.bg} shadow-sm scale-105` 
                                         : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                                }`}
+                                } hover:-translate-y-1 hover:shadow-md`}
                             >
                                 <cat.icon size={18} className={`transition-transform duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
                                 <span>{cat.name}</span>
@@ -398,7 +438,7 @@ const Home = () => {
     if (loading) return <Loader />;
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="bg-gray-50 min-h-screen overflow-x-hidden">
             <HeroSection city={selectedCity} />
             <QuickNav activeSection={activeSection} />
 

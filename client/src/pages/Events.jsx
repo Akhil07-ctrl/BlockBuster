@@ -184,7 +184,7 @@ const EventsPage = () => {
                                                 >
                                                     <div className="h-48 bg-gray-200 overflow-hidden">
                                                         <Motion.img 
-                                                            src={event.image || 'https://via.placeholder.com/400x300'} 
+                                                            src={event.image || 'https://placehold.co/400x300'} 
                                                             alt={event.title} 
                                                             className="w-full h-full object-cover"
                                                             whileHover={{ scale: 1.05 }}

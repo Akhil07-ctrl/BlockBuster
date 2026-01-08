@@ -114,7 +114,7 @@ const ActivitiesPage = () => {
                             {filteredActivities.map(activity => (
                                 <Link to={`/activities/${activity._id}`} key={activity._id} className="group bg-white rounded-xl border overflow-hidden hover:shadow-lg transition-shadow">
                                     <div className="h-52 bg-gray-200 overflow-hidden">
-                                        <img src={activity.image || 'https://via.placeholder.com/400x300'} alt={activity.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                        <img src={activity.image || 'https://placehold.co/400x300'} alt={activity.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                                     </div>
                                     <div className="p-4">
                                         <h3 className="font-bold text-gray-900 group-hover:text-brand-600 mb-1">{activity.title}</h3>

@@ -58,7 +58,7 @@ const StoreDetail = () => {
                     transition={{ duration: 0.6 }}
                 >
                     <Motion.img
-                        src={store.image || 'https://via.placeholder.com/600x400'}
+                        src={store.image || 'https://placehold.co/600x400'}
                         alt={store.title}
                         className="w-full rounded-2xl shadow-2xl"
                         whileHover={{ scale: 1.02 }}

@@ -113,7 +113,7 @@ const RestaurantsPage = () => {
                             {filteredRestaurants.map(restaurant => (
                                 <Link to={`/restaurants/${restaurant._id}`} key={restaurant._id} className="group bg-white rounded-xl border overflow-hidden hover:shadow-lg transition-shadow">
                                     <div className="h-52 bg-gray-200 overflow-hidden">
-                                        <img src={restaurant.image || 'https://via.placeholder.com/400x300'} alt={restaurant.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                        <img src={restaurant.image || 'https://placehold.co/400x300'} alt={restaurant.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                                     </div>
                                     <div className="p-4">
                                         <h3 className="font-bold text-gray-900 group-hover:text-brand-600 mb-1">{restaurant.title}</h3>

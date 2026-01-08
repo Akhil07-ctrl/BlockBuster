@@ -127,7 +127,7 @@ const MovieDetail = () => {
                             className="relative"
                         >
                             <img
-                                src={movie.poster || 'https://via.placeholder.com/300x450'}
+                                src={movie.poster || 'https://placehold.co/300x450'}
                                 alt={movie.title}
                                 className="w-full rounded-2xl shadow-2xl border border-white/10"
                             />
@@ -366,7 +366,7 @@ const MovieDetail = () => {
                                                 whileHover={{ scale: 1.1, borderColor: '#f97316' }}
                                             >
                                                 <img
-                                                    src={member.image || 'https://via.placeholder.com/150'}
+                                                    src={member.image || 'https://placehold.co/150'}
                                                     alt={member.name}
                                                     className="w-full h-full object-cover"
                                                 />

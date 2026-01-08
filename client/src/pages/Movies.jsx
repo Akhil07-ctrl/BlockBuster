@@ -29,7 +29,7 @@ const MovieCard = ({ movie }) => (
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
                 <img 
-                    src={movie.poster || 'https://via.placeholder.com/300x450'} 
+                    src={movie.poster || 'https://placehold.co/300x450'} 
                     alt={movie.title} 
                     className="w-full h-full object-cover"
                 />

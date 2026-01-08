@@ -147,7 +147,7 @@ const RestaurantDetail = () => {
                     transition={{ duration: 0.6 }}
                 >
                     <Motion.img
-                        src={restaurant.image || 'https://via.placeholder.com/600x400'}
+                        src={restaurant.image || 'https://placehold.co/600x400'}
                         alt={restaurant.title}
                         className="w-full rounded-2xl shadow-2xl"
                         whileHover={{ scale: 1.02 }}

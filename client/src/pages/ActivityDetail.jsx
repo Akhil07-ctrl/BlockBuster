@@ -135,7 +135,7 @@ const ActivityDetail = () => {
                     transition={{ duration: 0.6 }}
                 >
                     <Motion.img
-                        src={activity.image || 'https://via.placeholder.com/600x400'}
+                        src={activity.image || 'https://placehold.co/600x400'}
                         alt={activity.title}
                         className="w-full rounded-2xl shadow-2xl"
                         whileHover={{ scale: 1.02 }}

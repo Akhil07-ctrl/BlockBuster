@@ -164,7 +164,7 @@ const EventDetail = () => {
                     transition={{ duration: 0.6 }}
                 >
                     <Motion.img
-                        src={event.image || 'https://via.placeholder.com/600x400'}
+                        src={event.image || 'https://placehold.co/600x400'}
                         alt={event.title}
                         className="w-full rounded-2xl shadow-2xl"
                         whileHover={{ scale: 1.02 }}

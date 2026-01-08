@@ -431,7 +431,7 @@ const Home = () => {
                             item={event}
                             link={`/events/${event._id}`}
                             image={event.image}
-                            subtitle={event.venue?.name}
+                            subtitle={event.type}
                             badge={event.price ? `₹${event.price}` : 'Free'}
                             badgeColor="bg-brand-600"
                         />
@@ -469,7 +469,7 @@ const Home = () => {
                             image={activity.image}
                             subtitle={activity.type}
                             badge={`₹${activity.price}`}
-                            badgeColor="bg-green-600"
+                            badgeColor="bg-brand-600"
                         />
                     )}
                 />

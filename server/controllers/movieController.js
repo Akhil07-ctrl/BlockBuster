@@ -53,7 +53,7 @@ const createMovies = asyncHandler(async (req, res) => {
 // @route   GET /api/movies/:id
 // @access  Public
 const getMovieById = asyncHandler(async (req, res) => {
-    const movie = await Movie.findById(req.params.id);
+    const movie = await Movie.findById(req.params.id).populate('trailers');
     if (movie) {
         res.json(movie);
     } else {

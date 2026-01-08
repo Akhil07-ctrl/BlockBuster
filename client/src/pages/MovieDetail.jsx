@@ -6,6 +6,7 @@ import { Calendar, Clock, Star, Film, Play, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../hooks/useWishlist';
+import TrailerModal from '../components/TrailerModal';
 
 const MovieDetail = () => {
     const { id } = useParams();
@@ -13,6 +14,8 @@ const MovieDetail = () => {
     const { selectedCity } = useLocation();
     const [movie, setMovie] = useState(null);
     const [initialCity, setInitialCity] = useState(null);
+    const [isTrailerOpen, setIsTrailerOpen] = useState(false);
+    const [activeTrailer, setActiveTrailer] = useState(null);
 
     const { isWishlisted, toggle, message: wishlistMessage } = useWishlist(id, 'Movie');
 
@@ -300,23 +303,43 @@ const MovieDetail = () => {
                         </Motion.div>
 
                         {/* Watch Trailer if available */}
-                        {movie.trailerUrl && (
+                        {(movie.trailerUrl || (movie.trailers && movie.trailers.length > 0)) && (
                             <Motion.div
                                 className="mb-12"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.9 }}
                             >
-                                <Motion.a
-                                    href={movie.trailerUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center gap-2 text-brand-400 hover:text-brand-300 font-bold transition-colors"
-                                    whileHover={{ x: 5 }}
-                                >
-                                    <Play size={20} fill="currentColor" />
-                                    Watch Official Trailer
-                                </Motion.a>
+                                <div className="flex flex-wrap gap-4">
+                                    {movie.trailerUrl && (
+                                        <Motion.button
+                                            onClick={() => {
+                                                setActiveTrailer({ url: movie.trailerUrl, title: 'Official Trailer' });
+                                                setIsTrailerOpen(true);
+                                            }}
+                                            className="inline-flex items-center justify-center gap-2 text-brand-400 hover:text-brand-300 font-bold transition-colors"
+                                            whileHover={{ x: 5 }}
+                                        >
+                                            <Play size={20} fill="currentColor" />
+                                            Watch Official Trailer
+                                        </Motion.button>
+                                    )}
+
+                                    {movie.trailers?.map((trailer, idx) => (
+                                        <Motion.button
+                                            key={trailer._id || idx}
+                                            onClick={() => {
+                                                setActiveTrailer(trailer);
+                                                setIsTrailerOpen(true);
+                                            }}
+                                            className="inline-flex items-center justify-center gap-2 text-brand-400 hover:text-brand-300 font-bold transition-colors"
+                                            whileHover={{ x: 5 }}
+                                        >
+                                            <Play size={20} fill="currentColor" />
+                                            {trailer.title || `Watch Trailer ${idx + 1}`}
+                                        </Motion.button>
+                                    ))}
+                                </div>
                             </Motion.div>
                         )}
 
@@ -363,6 +386,13 @@ const MovieDetail = () => {
                     </Motion.div>
                 </div>
             </div>
+
+            <TrailerModal
+                isOpen={isTrailerOpen}
+                onClose={() => setIsTrailerOpen(false)}
+                trailerUrl={activeTrailer?.url}
+                title={activeTrailer?.title}
+            />
         </Motion.div>
     );
 };

@@ -11,7 +11,25 @@ const SearchBar = () => {
     const [results, setResults] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const searchRef = useRef(null);
+
+    const placeholders = [
+        "Search for 'Inception'",
+        "Search for 'Sunburn'",
+        "Search for 'Barbeque Nation'",
+        "Search for 'Ramoji Film City'",
+        "Search for 'Pantaloons'",
+        "Search for 'Sky Lounge'",
+        "Search for 'Salaar'",
+    ];
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+        }, 3000);
+        return () => clearInterval(intervalId);
+    }, [placeholders.length]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -116,9 +134,25 @@ const SearchBar = () => {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onFocus={() => query.length >= 2 && setIsOpen(true)}
-                        placeholder="Search movies, events, more..."
                         className="w-full bg-white border border-gray-300 hover:border-brand-400 focus:border-brand-500 focus:outline-none rounded-xl py-2.5 pl-12 pr-12 text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg focus:shadow-brand-500/10"
                     />
+
+                    <div className="absolute left-12 pointer-events-none overflow-hidden h-5 flex items-center">
+                        <AnimatePresence mode="wait">
+                            {!query && (
+                                <Motion.span
+                                    key={placeholderIndex}
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: -20, opacity: 0 }}
+                                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                                    className="text-gray-400 text-sm font-medium whitespace-nowrap"
+                                >
+                                    {placeholders[placeholderIndex]}
+                                </Motion.span>
+                            )}
+                        </AnimatePresence>
+                    </div>
 
                     <AnimatePresence>
                         {query && (

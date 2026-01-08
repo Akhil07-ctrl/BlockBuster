@@ -6,6 +6,7 @@ import { MapPin, Phone, Clock, ExternalLink, Tag, Heart } from 'lucide-react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Loader from '../components/Loader';
 import { useWishlist } from '../hooks/useWishlist';
+import { handleImageError } from '../utils/imageUtils';
 
 const StoreDetail = () => {
     const { id } = useParams();
@@ -62,6 +63,8 @@ const StoreDetail = () => {
                         alt={store.title}
                         className="w-full rounded-2xl shadow-2xl"
                         whileHover={{ scale: 1.02 }}
+                        onError={(e) => handleImageError(e, 'store')}
+                        loading="lazy"
                     />
                 </Motion.div>
 
@@ -87,7 +90,7 @@ const StoreDetail = () => {
                                 {store.category}
                             </span>
                         )}
-                        
+
                         <Motion.button
                             onClick={toggle}
                             className={`p-2 rounded-full transition-all border-2 ${isWishlisted ? 'bg-brand-500/10 border-brand-500 text-brand-500' : 'border-gray-200 text-gray-400 hover:border-brand-500 hover:text-brand-500'}`}

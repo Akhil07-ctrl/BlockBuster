@@ -6,6 +6,7 @@ import { fetchRestaurantById, createBooking, verifyPayment } from '../api';
 import { MapPin, Phone, Clock, DollarSign, Utensils, Star, ExternalLink, Minus, Plus, Heart } from 'lucide-react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../hooks/useWishlist';
+import { handleImageError } from '../utils/imageUtils';
 
 const RestaurantDetail = () => {
     const { id } = useParams();
@@ -151,6 +152,8 @@ const RestaurantDetail = () => {
                         alt={restaurant.title}
                         className="w-full rounded-2xl shadow-2xl"
                         whileHover={{ scale: 1.02 }}
+                        onError={(e) => handleImageError(e, 'restaurant')}
+                        loading="lazy"
                     />
                 </Motion.div>
 
@@ -179,7 +182,7 @@ const RestaurantDetail = () => {
                                 <span className="text-gray-700 font-medium">{restaurant.cuisine.join(', ')}</span>
                             </div>
                         )}
-                        
+
                         <Motion.button
                             onClick={toggle}
                             className={`p-2 rounded-full transition-all border-2 ${isWishlisted ? 'bg-brand-500/10 border-brand-500 text-brand-500' : 'border-gray-200 text-gray-400 hover:border-brand-500 hover:text-brand-500'}`}

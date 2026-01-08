@@ -89,7 +89,7 @@ const Contact = () => {
                             <div>
                                 <h3 className="font-bold text-gray-900 mb-1">Visit Us</h3>
                                 <p className="text-gray-600">Flat-305, Ruby Block</p>
-                                <p className="text-gray-600">Kompally, Hyderabad</p>
+                                <p className="text-gray-600">Kompally, Hyderabad - 500014</p>
                             </div>
                         </div>
                     </div>

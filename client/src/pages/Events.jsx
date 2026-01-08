@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { FilterSection, Checkbox } from '../components/FilterComponents';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Loader from '../components/Loader';
+import { handleImageError } from '../utils/imageUtils';
 
 const EventsPage = () => {
     const { selectedCity } = useLocation();
@@ -50,7 +51,7 @@ const EventsPage = () => {
     };
 
     if (!selectedCity) return (
-        <Motion.div 
+        <Motion.div
             className="h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -99,13 +100,13 @@ const EventsPage = () => {
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Filters Sidebar */}
-                    <Motion.div 
+                    <Motion.div
                         className="w-full lg:w-64 shrink-0"
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
                     >
-                        <Motion.div 
+                        <Motion.div
                             className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg sticky top-24"
                             whileHover={{ boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
                             transition={{ duration: 0.3 }}
@@ -118,8 +119,8 @@ const EventsPage = () => {
                                     </div>
                                     <AnimatePresence>
                                         {selectedTypes.length > 0 && (
-                                            <Motion.button 
-                                                onClick={clearFilters} 
+                                            <Motion.button
+                                                onClick={clearFilters}
                                                 className="text-brand-600 text-sm font-bold hover:text-brand-700 transition-colors"
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -148,7 +149,7 @@ const EventsPage = () => {
                     </Motion.div>
 
                     {/* Events Grid */}
-                    <Motion.div 
+                    <Motion.div
                         className="flex-1"
                         initial={{ x: 20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
@@ -183,15 +184,17 @@ const EventsPage = () => {
                                                     whileHover={{ y: -4 }}
                                                 >
                                                     <div className="h-48 bg-gray-200 overflow-hidden">
-                                                        <Motion.img 
-                                                            src={event.image || 'https://placehold.co/400x300'} 
-                                                            alt={event.title} 
+                                                        <Motion.img
+                                                            src={event.image || 'https://placehold.co/400x300'}
+                                                            alt={event.title}
                                                             className="w-full h-full object-cover"
                                                             whileHover={{ scale: 1.05 }}
+                                                            onError={(e) => handleImageError(e, 'event')}
+                                                            loading="lazy"
                                                         />
                                                     </div>
                                                     <div className="p-5 flex-1 flex flex-col">
-                                                        <Motion.h3 
+                                                        <Motion.h3
                                                             className="font-bold text-gray-900 group-hover:text-brand-600 mb-2 line-clamp-2"
                                                             whileHover={{ x: 4 }}
                                                         >
@@ -206,7 +209,7 @@ const EventsPage = () => {
                                     ))}
                                 </Motion.div>
                             ) : (
-                                <Motion.div 
+                                <Motion.div
                                     className="col-span-full p-12 bg-white rounded-2xl border-2 border-dashed border-gray-300 text-center"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}

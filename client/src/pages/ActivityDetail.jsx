@@ -7,6 +7,7 @@ import { MapPin, Clock, DollarSign, Users, AlertCircle, Minus, Plus, Heart } fro
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Loader from '../components/Loader';
 import { useWishlist } from '../hooks/useWishlist';
+import { handleImageError } from '../utils/imageUtils';
 
 const ActivityDetail = () => {
     const { id } = useParams();
@@ -122,9 +123,9 @@ const ActivityDetail = () => {
     if (!activity) return <div className="p-10 text-center">Activity not found</div>;
 
     return (
-        <Motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
+        <Motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="container mx-auto px-4 py-12"
         >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -139,6 +140,8 @@ const ActivityDetail = () => {
                         alt={activity.title}
                         className="w-full rounded-2xl shadow-2xl"
                         whileHover={{ scale: 1.02 }}
+                        onError={(e) => handleImageError(e, 'activity')}
+                        loading="lazy"
                     />
                 </Motion.div>
 
@@ -148,7 +151,7 @@ const ActivityDetail = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                 >
-                    <Motion.h1 
+                    <Motion.h1
                         className="text-5xl font-black mb-4 bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent"
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -172,7 +175,7 @@ const ActivityDetail = () => {
                                 {activity.difficulty}
                             </span>
                         )}
-                        
+
                         <Motion.button
                             onClick={toggle}
                             className={`p-2 rounded-full transition-all border-2 ${isWishlisted ? 'bg-brand-500/10 border-brand-500 text-brand-500' : 'border-gray-200 text-gray-400 hover:border-brand-500 hover:text-brand-500'}`}

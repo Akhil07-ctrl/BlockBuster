@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../hooks/useWishlist';
 import TrailerModal from '../components/TrailerModal';
+import { handleImageError } from '../utils/imageUtils';
 
 const MovieDetail = () => {
     const { id } = useParams();
@@ -103,6 +104,8 @@ const MovieDetail = () => {
                         initial={{ scale: 1.1 }}
                         animate={{ scale: 1 }}
                         transition={{ duration: 0.8 }}
+                        onError={(e) => handleImageError(e, 'movie')}
+                        loading="lazy"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-gray-900 to-gray-800">
@@ -130,6 +133,8 @@ const MovieDetail = () => {
                                 src={movie.poster || 'https://placehold.co/300x450'}
                                 alt={movie.title}
                                 className="w-full rounded-2xl shadow-2xl border border-white/10"
+                                onError={(e) => handleImageError(e, 'movie')}
+                                loading="lazy"
                             />
                             <Motion.div
                                 className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0"
@@ -369,6 +374,8 @@ const MovieDetail = () => {
                                                     src={member.image || 'https://placehold.co/150'}
                                                     alt={member.name}
                                                     className="w-full h-full object-cover"
+                                                    onError={(e) => handleImageError(e, 'movie')}
+                                                    loading="lazy"
                                                 />
                                             </Motion.div>
                                             <Motion.p

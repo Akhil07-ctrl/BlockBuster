@@ -6,6 +6,7 @@ import { fetchEventById, createBooking, verifyPayment } from '../api';
 import { Calendar, MapPin, Minus, Plus, User, Tag, Heart } from 'lucide-react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../hooks/useWishlist';
+import { handleImageError } from '../utils/imageUtils';
 
 const EventDetail = () => {
     const { id } = useParams();
@@ -168,6 +169,8 @@ const EventDetail = () => {
                         alt={event.title}
                         className="w-full rounded-2xl shadow-2xl"
                         whileHover={{ scale: 1.02 }}
+                        onError={(e) => handleImageError(e, 'event')}
+                        loading="lazy"
                     />
                 </Motion.div>
 

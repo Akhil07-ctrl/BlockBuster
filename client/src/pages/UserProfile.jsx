@@ -95,9 +95,9 @@ const UserProfile = () => {
                     <div className="absolute top-0 -left-20 w-80 h-80 bg-brand-500 rounded-full blur-[100px]"></div>
                     <div className="absolute bottom-0 -right-20 w-80 h-80 bg-purple-600 rounded-full blur-[100px]"></div>
                 </div>
-                
+
                 <div className="container mx-auto px-4 relative z-10">
-                    <Motion.div 
+                    <Motion.div
                         className="flex flex-col md:flex-row items-center gap-8"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -108,12 +108,13 @@ const UserProfile = () => {
                                 alt={user.fullName}
                                 className="w-32 h-32 rounded-3xl border-4 border-white/10 shadow-2xl object-cover"
                                 whileHover={{ scale: 1.05, rotate: 2 }}
+                                loading="lazy"
                             />
                             <div className="absolute -bottom-2 -right-2 bg-brand-500 text-white p-2 rounded-xl shadow-lg">
                                 <Package size={20} />
                             </div>
                         </div>
-                        
+
                         <div className="text-center md:text-left">
                             <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tight">{user.fullName}</h1>
                             <div className="flex flex-wrap justify-center md:justify-start gap-4 text-gray-400">
@@ -152,7 +153,7 @@ const UserProfile = () => {
 
                 <AnimatePresence mode="wait">
                     {activeTab === 'bookings' ? (
-                        <Motion.div 
+                        <Motion.div
                             key="bookings"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -166,11 +167,10 @@ const UserProfile = () => {
                                         <button
                                             key={filter}
                                             onClick={() => setBookingFilter(filter)}
-                                            className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest border-2 transition-all ${
-                                                bookingFilter === filter 
-                                                ? 'bg-gray-900 border-gray-900 text-white shadow-lg' 
+                                            className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest border-2 transition-all ${bookingFilter === filter
+                                                ? 'bg-gray-900 border-gray-900 text-white shadow-lg'
                                                 : 'bg-white border-gray-100 text-gray-500 hover:border-gray-200'
-                                            }`}
+                                                }`}
                                         >
                                             {filter}
                                         </button>
@@ -202,7 +202,7 @@ const UserProfile = () => {
                                     </div>
                                     <h3 className="text-2xl font-bold text-gray-900 mb-2">No {bookingFilter} bookings</h3>
                                     <p className="text-gray-500 mb-4">You don't have any bookings with status "{bookingFilter}".</p>
-                                    <button 
+                                    <button
                                         onClick={() => setBookingFilter('all')}
                                         className="text-brand-600 font-bold hover:underline"
                                     >
@@ -212,21 +212,22 @@ const UserProfile = () => {
                             ) : (
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     {filteredBookings.map((booking) => (
-                                        <Motion.div 
-                                            key={booking._id} 
+                                        <Motion.div
+                                            key={booking._id}
                                             className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all group overflow-hidden"
                                             whileHover={{ y: -5 }}
                                         >
                                             <div className="flex flex-col sm:flex-row gap-6">
                                                 {/* Booking Image */}
                                                 <div className="w-full sm:w-32 h-48 sm:h-32 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
-                                                    <img 
-                                                        src={booking.entityType === 'Movie' ? booking.entityId?.poster : booking.entityId?.image} 
-                                                        alt={booking.entityId?.title || booking.entityId?.name} 
+                                                    <img
+                                                        src={booking.entityType === 'Movie' ? booking.entityId?.poster : booking.entityId?.image}
+                                                        alt={booking.entityId?.title || booking.entityId?.name}
                                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                                         onError={(e) => {
                                                             e.target.src = 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=2070&auto=format&fit=crop';
                                                         }}
+                                                        loading="lazy"
                                                     />
                                                 </div>
 
@@ -314,7 +315,7 @@ const UserProfile = () => {
                             )}
                         </Motion.div>
                     ) : (
-                        <Motion.div 
+                        <Motion.div
                             key="wishlist"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -339,20 +340,21 @@ const UserProfile = () => {
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                     {wishlist.map((item) => (
-                                        <Motion.div 
-                                            key={item.itemId} 
+                                        <Motion.div
+                                            key={item.itemId}
                                             className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group relative"
                                             whileHover={{ y: -8 }}
                                         >
                                             <div className="aspect-[3/4] relative overflow-hidden bg-gray-100">
-                                                <img 
-                                                    src={item.details?.poster || item.details?.image || 'https://placehold.co/400x600'} 
+                                                <img
+                                                    src={item.details?.poster || item.details?.image || 'https://placehold.co/400x600'}
                                                     alt={item.details?.title || item.details?.name}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                                    loading="lazy"
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity"></div>
-                                                
-                                                <button 
+
+                                                <button
                                                     onClick={() => handleRemoveFromWishlist(item.itemId, item.itemType)}
                                                     className="absolute top-4 right-4 p-2 bg-white/10 backdrop-blur-md hover:bg-brand-500 text-white rounded-xl transition-all shadow-lg border border-white/20"
                                                     title="Remove from Hotlist"
@@ -373,12 +375,12 @@ const UserProfile = () => {
                                             <div className="p-4 flex items-center justify-between">
                                                 <span className="text-xs font-bold text-gray-500">
                                                     {item.itemType === 'Movie' && item.details?.rating ? `${item.details.rating} ★` :
-                                                     item.itemType === 'Event' && item.details?.price ? `₹${item.details.price}` :
-                                                     item.itemType === 'Restaurant' && item.details?.cuisine ? item.details.cuisine[0] :
-                                                     item.itemType === 'Store' && item.details?.category ? item.details.category :
-                                                     item.itemType === 'Activity' && item.details?.price ? `₹${item.details.price}` : 'Featured'}
+                                                        item.itemType === 'Event' && item.details?.price ? `₹${item.details.price}` :
+                                                            item.itemType === 'Restaurant' && item.details?.cuisine ? item.details.cuisine[0] :
+                                                                item.itemType === 'Store' && item.details?.category ? item.details.category :
+                                                                    item.itemType === 'Activity' && item.details?.price ? `₹${item.details.price}` : 'Featured'}
                                                 </span>
-                                                <Link 
+                                                <Link
                                                     to={`/${item.itemType.toLowerCase()}s/${item.itemId}`}
                                                     className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1"
                                                 >

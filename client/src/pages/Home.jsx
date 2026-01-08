@@ -9,6 +9,7 @@ import Loader from '../components/Loader';
 import PropTypes from 'prop-types';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
+import { handleImageError } from '../utils/imageUtils';
 
 const CategoryCarousel = ({ data, renderCard }) => {
     return (
@@ -26,7 +27,7 @@ const CategoryCarousel = ({ data, renderCard }) => {
                     <SwiperSlide key={item._id}>
                         {({ isActive }) => (
                             <Motion.div
-                                animate={{ 
+                                animate={{
                                     scale: isActive ? 1 : 0.85,
                                     opacity: isActive ? 1 : 0.6
                                 }}
@@ -164,7 +165,7 @@ const PremiumCard = ({ item, link, image, subtitle, badge, badgeColor = "bg-blac
     return (
         <Motion.div
             className="group cursor-pointer h-full"
-            whileHover={{ 
+            whileHover={{
                 y: -12,
                 transition: { type: 'spring', stiffness: 400, damping: 17 }
             }}
@@ -175,6 +176,12 @@ const PremiumCard = ({ item, link, image, subtitle, badge, badgeColor = "bg-blac
                     src={image || 'https://placehold.co/400x600'}
                     alt={item.title || item.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                        // Determine entity type from link path
+                        const entityType = link.split('/')[1]?.slice(0, -1) || 'generic';
+                        handleImageError(e, entityType);
+                    }}
+                    loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
 
@@ -350,16 +357,15 @@ const QuickNav = ({ activeSection }) => {
                             <button
                                 key={cat.id}
                                 onClick={() => scrollToSection(cat.id)}
-                                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-500 whitespace-nowrap group relative ${
-                                    isActive 
-                                        ? `${cat.color} ${cat.bg} shadow-sm scale-105` 
-                                        : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                                } hover:-translate-y-1 hover:shadow-md`}
+                                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-500 whitespace-nowrap group relative ${isActive
+                                    ? `${cat.color} ${cat.bg} shadow-sm scale-105`
+                                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                                    } hover:-translate-y-1 hover:shadow-md`}
                             >
                                 <cat.icon size={18} className={`transition-transform duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
                                 <span>{cat.name}</span>
                                 {isActive && (
-                                    <Motion.div 
+                                    <Motion.div
                                         layoutId="activeTab"
                                         className="absolute inset-0 border-2 border-current opacity-20 rounded-full"
                                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -405,7 +411,7 @@ const Home = () => {
 
         const observer = new IntersectionObserver(observerCallback, observerOptions);
         const sections = ['movies', 'events', 'dining', 'activities', 'shopping'];
-        
+
         sections.forEach((id) => {
             const element = document.getElementById(id);
             if (element) observer.observe(element);

@@ -9,13 +9,16 @@ A full-stack web application for discovering and booking movies, events, restaur
 - Tailwind CSS v3
 - Clerk Authentication
 - Framer Motion, GSAP, Lenis
-- React Router, Axios
+- React Router, Axios, Lucide React, Swiper
+- Razorpay Integration
 
-**Backend:**
+**Back-End:**
 - Node.js + Express
 - MongoDB + Mongoose
-- Slug-based routing
+- Slug-based routing & resolution
 - RESTful APIs
+- Resend (Email Service)
+- Razorpay Node SDK
 
 ## 📦 Project Structure
 
@@ -26,7 +29,9 @@ BlockBuster/
 │   │   ├── api/
 │   │   ├── components/
 │   │   ├── context/
-│   │   └── pages/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   └── utils/
 │   └── package.json
 └── server/          # Express Backend
     ├── config/
@@ -34,9 +39,20 @@ BlockBuster/
     ├── middleware/
     ├── models/
     ├── routes/
+    ├── utils/
     ├── index.js
     └── package.json
 ```
+
+## ✨ Key Features
+
+- **Multi-City Discovery**: Browse movies, events, and dining by city.
+- **Secure Authentication**: Robust user management with Clerk.
+- **Premium User Experience**:
+  - **Lazy Loading**: High-performance image loading.
+  - **Global Error Handling**: Smart fallbacks for missing images.
+  - **Ticket-Style Emails**: Beautiful booking confirmations sent via Resend.
+- **Responsive Design**: Mobile-first approach using Tailwind CSS.
 
 ## 🏃 Local Development
 
@@ -62,22 +78,31 @@ PORT=5000
 MONGO_URI=your_mongodb_uri
 CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
+RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_SECRET=...
+ADMIN_API_KEY=your_secret_admin_key
+RESEND_API_KEY=re_...
+CLIENT_URL=http://localhost:5173
 ```
 
 **Client (.env):**
 ```
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+VITE_API_URL=http://localhost:5000/api
+VITE_RAZORPAY_KEY_ID=rzp_test_...
 ```
 
 ## 📊 API Endpoints
 
 - `GET/POST /api/cities` - Cities management
-- `GET/POST /api/venues` - Venues (with citySlug)
+- `GET/POST /api/venues` - Venues (with city query)
 - `GET/POST /api/movies` - Movies
 - `GET/POST /api/events` - Events
 - `GET/POST /api/restaurants` - Restaurants
 - `GET/POST /api/stores` - Stores
 - `GET/POST /api/activities` - Activities
+- `GET/POST /api/bookings` - Booking management & Payment verification
+- `GET /api/screenings/:movieSlug/:citySlug` - Movie screening details
 
 All POST endpoints support bulk insertion and slug resolution.
 

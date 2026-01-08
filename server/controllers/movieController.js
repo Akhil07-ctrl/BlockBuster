@@ -1,7 +1,4 @@
 const Movie = require('../models/Movie');
-const Trailer = require('../models/Trailer');
-const City = require('../models/City');
-const Screening = require('../models/Screening');
 const asyncHandler = require('../middleware/asyncHandler');
 const slugify = require('slugify');
 

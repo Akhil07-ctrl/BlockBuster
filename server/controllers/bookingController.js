@@ -1,9 +1,9 @@
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Booking = require('../models/Booking');
+const User = require('../models/User'); // Import User model
 const asyncHandler = require('../middleware/asyncHandler');
 const { sendBookingConfirmation } = require('../utils/emailService');
-const Venue = require('../models/Venue');
 const Movie = require('../models/Movie');
 const Event = require('../models/Event');
 const Restaurant = require('../models/Restaurant');
@@ -133,9 +133,13 @@ const verifyPayment = asyncHandler(async (req, res) => {
             const venue = populatedBooking.venueId;
             const EntityModel = getEntityModel(populatedBooking.entityType);
             const entity = populatedBooking.entityId;
-            
+
+            // Fetch user to get the name
+            const user = await User.findOne({ clerkId: booking.userId });
+            const userName = user ? user.firstName : 'User';
+
             if (entity) {
-                sendBookingConfirmation(populatedBooking, entity, venue);
+                sendBookingConfirmation(populatedBooking, entity, venue, userName);
             }
         } catch (emailErr) {
             console.error('Email preparation error:', emailErr);

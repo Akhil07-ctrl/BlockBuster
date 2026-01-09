@@ -33,8 +33,19 @@ const razorpay = new Razorpay({
 const createBooking = asyncHandler(async (req, res) => {
     const { userId, email, entityId, entityType, venueId, date, showTime, screenName, seats, quantity, totalAmount } = req.body;
 
+    // Validate required fields
+    if (!userId || !email || !entityId || !entityType || !totalAmount) {
+        res.status(400);
+        throw new Error('Missing required booking fields');
+    }
+
     // Check if any of the seats are already booked for movies
     if (entityType === 'Movie') {
+        if (!seats || seats.length === 0) {
+            res.status(400);
+            throw new Error('Seats are required for movie bookings');
+        }
+        
         const existingBookings = await Booking.find({
             entityId,
             venueId,
@@ -63,25 +74,38 @@ const createBooking = asyncHandler(async (req, res) => {
         }
     };
 
-    const order = await razorpay.orders.create(options);
+    let order;
+    try {
+        order = await razorpay.orders.create(options);
+    } catch (razorpayErr) {
+        res.status(500);
+        throw new Error(`Razorpay error: ${razorpayErr.message}`);
+    }
 
-    // Create booking in pending state
-    const booking = await Booking.create({
+    // Build booking object with only relevant fields
+    const bookingData = {
         userId,
         email,
         entityId,
         entityType,
         venueId,
         date,
-        showTime,
-        screenName,
-        seats,
-        quantity,
+        quantity: quantity || 1,
         totalAmount,
         paymentOrderId: order.id,
         status: 'pending',
         paymentStatus: 'pending'
-    });
+    };
+
+    // Add movie-specific fields only if it's a movie booking
+    if (entityType === 'Movie') {
+        bookingData.showTime = showTime;
+        bookingData.screenName = screenName;
+        bookingData.seats = seats;
+    }
+
+    // Create booking in pending state
+    const booking = await Booking.create(bookingData);
 
     res.status(201).json({
         booking,
@@ -139,7 +163,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
             const userName = user ? user.firstName : 'User';
 
             if (entity) {
-                sendBookingConfirmation(populatedBooking, entity, venue, userName);
+                await sendBookingConfirmation(populatedBooking, entity, venue, userName);
             }
         } catch (emailErr) {
             console.error('Email preparation error:', emailErr);

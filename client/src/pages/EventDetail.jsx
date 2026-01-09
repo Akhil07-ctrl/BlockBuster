@@ -82,7 +82,7 @@ const EventDetail = () => {
                 email: user.primaryEmailAddress.emailAddress,
                 entityId: event._id,
                 entityType: 'Event',
-                venueId: event.venue._id,
+                venueId: event.venue?._id,
                 date: event.date,
                 quantity,
                 totalAmount: quantity * event.price
@@ -126,8 +126,9 @@ const EventDetail = () => {
             const rzp = new window.Razorpay(options);
             rzp.open();
         } catch (err) {
-            alert('Failed to initiate payment');
-            console.error(err);
+            const errorMessage = err.response?.data?.message || err.message || 'Failed to initiate payment';
+            alert(errorMessage);
+            console.error('Booking error:', err);
         } finally {
             setProcessing(false);
         }

@@ -15,7 +15,6 @@ const movieSchema = new mongoose.Schema({
     votes: { type: Number, default: 0 },
     certificate: { type: String, enum: ['U', 'U/A', 'A', 'S'], default: 'U/A' },
     trailerUrl: { type: String },
-    trailers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trailer' }],
     cast: [{
         name: String,
         role: String,

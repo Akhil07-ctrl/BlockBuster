@@ -4,6 +4,8 @@ const Booking = require('../models/Booking');
 const User = require('../models/User'); // Import User model
 const asyncHandler = require('../middleware/asyncHandler');
 const { sendBookingConfirmation } = require('../utils/emailService');
+const { sendWhatsAppConfirmation } = require('../utils/twilioService');
+const { clerkClient } = require('@clerk/clerk-sdk-node');
 const Movie = require('../models/Movie');
 const Event = require('../models/Event');
 const Restaurant = require('../models/Restaurant');
@@ -45,7 +47,7 @@ const createBooking = asyncHandler(async (req, res) => {
             res.status(400);
             throw new Error('Seats are required for movie bookings');
         }
-        
+
         const existingBookings = await Booking.find({
             entityId,
             venueId,
@@ -167,6 +169,54 @@ const verifyPayment = asyncHandler(async (req, res) => {
             }
         } catch (emailErr) {
             console.error('Email preparation error:', emailErr);
+        }
+
+
+        // Send WhatsApp confirmation asynchronously
+        try {
+            console.log('Attempting to send WhatsApp for user:', booking.userId);
+            const clerkUser = await clerkClient.users.getUser(booking.userId);
+            const primaryPhoneNumberId = clerkUser.primaryPhoneNumberId;
+            let userPhone = null;
+
+
+            if (primaryPhoneNumberId) {
+                const primaryPhoneObj = clerkUser.phoneNumbers.find(p => p.id === primaryPhoneNumberId);
+                if (primaryPhoneObj) userPhone = primaryPhoneObj.phoneNumber;
+            } else if (clerkUser.phoneNumbers && clerkUser.phoneNumbers.length > 0) {
+                userPhone = clerkUser.phoneNumbers[0].phoneNumber;
+            }
+
+            // Fallback 1: Razorpay Payment Details (Most Reliable for this transaction)
+            if (!userPhone) {
+                try {
+                    const payment = await razorpay.payments.fetch(razorpay_payment_id);
+                    if (payment && payment.contact) {
+                        // Razorpay contact might not have +91 prefix or might differ in format
+                        // But usually it's a valid 10-digit number. Twilio needs E.164.
+                        // We'll trust Twilio Service to handle basic formatting if possible,
+                        // or we ensure it's prefixed with +91 if missing (assuming India for now or check user country code).
+                        // payment.contact usually comes as "+91999..." or "999..."
+
+                        userPhone = payment.contact;
+                        console.log('Found phone in Razorpay payment details:', userPhone);
+                    }
+                } catch (razorpayFetchErr) {
+                    console.error('Error fetching Razorpay payment details:', razorpayFetchErr);
+                }
+            }
+
+
+
+            if (userPhone) {
+                const userName = await User.findOne({ clerkId: booking.userId }).select('firstName');
+                const nameToSend = userName ? userName.firstName : 'User';
+                await sendWhatsAppConfirmation(userPhone, populatedBooking, nameToSend);
+            } else {
+                console.log('No phone number found for user, skipping WhatsApp confirmation');
+            }
+        } catch (twilioErr) {
+            console.error('Twilio WhatsApp error:', twilioErr);
         }
 
         res.json({ success: true, booking: populatedBooking });

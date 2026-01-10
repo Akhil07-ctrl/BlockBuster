@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLocation } from '../context/LocationContext';
 import { fetchScreenings, fetchMovieById } from '../api';
@@ -41,20 +41,57 @@ const MovieShowtimes = () => {
                d1.getDate() === d2.getDate();
     };
 
+    const filteredScreenings = useMemo(() => {
+        const isPastTime = (timeStr) => {
+            const now = new Date();
+            const selected = new Date(selectedDate);
+            selected.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (selected < today) return true;
+            if (selected > today) return false;
+
+            const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+            if (!match) return false;
+
+            let [_, hours, minutes, modifier] = match;
+            hours = parseInt(hours, 10);
+            minutes = parseInt(minutes, 10);
+
+            if (modifier) {
+                if (modifier.toUpperCase() === 'PM' && hours < 12) hours += 12;
+                if (modifier.toUpperCase() === 'AM' && hours === 12) hours = 0;
+            }
+
+            const showDate = new Date();
+            showDate.setHours(hours, minutes, 0, 0);
+            return showDate < now;
+        };
+
+        return (screenings || []).map(venue => {
+            const filteredScreens = (venue.screens || []).map(screen => {
+                const filteredShows = (screen.shows || []).filter(show => {
+                    const time = typeof show === 'object' ? show.time : show;
+                    return !isPastTime(time);
+                });
+                return { ...screen, shows: filteredShows };
+            }).filter(screen => screen.shows.length > 0);
+
+            return { ...venue, screens: filteredScreens };
+        }).filter(venue => venue.screens.length > 0);
+    }, [screenings, selectedDate]);
+
     useEffect(() => {
         const getData = async () => {
             if (!selectedCity) return;
             setLoading(true);
             try {
-                // 1. Get Movie Details (to get slug)
                 const { data: movieData } = await fetchMovieById(id);
                 setMovie(movieData);
 
-                // 2. Get Screenings
                 const { data: screeningsData } = await fetchScreenings(movieData.slug, selectedCity.slug);
-                console.log('Screenings Response:', screeningsData);
                 
-                // Handle different potential response structures
                 let screeningsList = [];
                 if (Array.isArray(screeningsData)) {
                     screeningsList = screeningsData;
@@ -134,7 +171,7 @@ const MovieShowtimes = () => {
             </div>
 
             <div className="container mx-auto px-4 py-8">
-                {!screenings || screenings.length === 0 ? (
+                {!filteredScreenings || filteredScreenings.length === 0 ? (
                     <div className="bg-white rounded-3xl border p-20 text-center shadow-sm">
                         <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Calendar size={40} className="text-gray-300" />
@@ -144,7 +181,7 @@ const MovieShowtimes = () => {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {screenings.map((screening) => {
+                        {filteredScreenings.map((screening) => {
                             // Provide fallback for venue/theatre if populated data is missing
                             const venueName = screening.venue?.name || screening.theatre?.name || 'Unknown Cinema';
                             const venueAddress = screening.venue?.address || screening.theatre?.location || 'Address not available';

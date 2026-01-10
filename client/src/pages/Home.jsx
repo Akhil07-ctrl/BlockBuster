@@ -334,16 +334,14 @@ const QuickNav = ({ activeSection }) => {
     const scrollToSection = (id) => {
         const element = document.getElementById(id);
         if (element) {
-            const offset = 140; // Increased offset to account for sticky nav height
-            const bodyRect = document.body.getBoundingClientRect().top;
-            const elementRect = element.getBoundingClientRect().top;
-            const elementPosition = elementRect - bodyRect;
-            const offsetPosition = elementPosition - offset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
+            // Dispatch event for SmoothScroll (Lenis) to handle
+            // Offset -140 accounts for Header (64px) + QuickNav (~60px) + Breathing room
+            window.dispatchEvent(new CustomEvent('lenis-scroll-to', {
+                detail: {
+                    target: element,
+                    offset: -140
+                }
+            }));
         }
     };
 
@@ -397,7 +395,11 @@ const Home = () => {
     useEffect(() => {
         const observerOptions = {
             root: null,
-            rootMargin: '-30% 0px -70% 0px', // More balanced detection area
+            // Adjust margin to detect sections when they are near the top (under the nav)
+            // Top: -15% (ignores top 15% of viewport)
+            // Bottom: -60% (ignores bottom 60% of viewport)
+            // Active zone is between 15% and 40% from the top
+            rootMargin: '-15% 0px -60% 0px',
             threshold: 0
         };
 
@@ -444,11 +446,11 @@ const Home = () => {
     if (loading) return <Loader />;
 
     return (
-        <div className="bg-gray-50 min-h-screen overflow-x-hidden">
+        <div className="bg-gray-50 min-h-screen">
             <HeroSection city={selectedCity} />
             <QuickNav activeSection={activeSection} />
 
-            <div className="space-y-0">
+            <div className="space-y-0 overflow-x-hidden">
                 <HomeSection
                     id="movies"
                     title="Recommended Movies"

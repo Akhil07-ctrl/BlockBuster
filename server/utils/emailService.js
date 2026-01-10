@@ -158,7 +158,7 @@ const sendBookingConfirmation = async (booking, entity, venue, userName) => {
 
     try {
         const { data, error } = await resend.emails.send({
-            from: 'BlockBuster <noreply@blockbuster.com>',
+            from: 'BlockBuster <onboarding@resend.dev>', // Replace with your verified sender address
             to: booking.email,
             subject: `Booking Confirmed: ${entityName} - BlockBuster`,
             html: html

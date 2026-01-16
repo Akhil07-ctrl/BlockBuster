@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from '../context/LocationContext';
 import { fetchCities } from '../api';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, X, Sparkles } from 'lucide-react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 const LocationModal = () => {
     const { selectedCity, updateCity } = useLocation();
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [cities, setCities] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -39,6 +41,7 @@ const LocationModal = () => {
         setTimeout(() => {
             updateCity(city);
             setIsOpen(false);
+            navigate('/');
         }, 300);
     };
 

@@ -224,6 +224,11 @@ const verifyPayment = asyncHandler(async (req, res) => {
 
         res.json({ success: true, booking: populatedBooking });
     } else {
+        console.error('Payment Verification: FAILED!', {
+            received: razorpay_signature,
+            expected: expectedSignature,
+            isSecretSet: !!process.env.RAZORPAY_KEY_SECRET
+        });
         booking.paymentStatus = 'failed';
         booking.status = 'failed';
         await booking.save();

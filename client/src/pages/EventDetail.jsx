@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { useLocation } from '../context/LocationContext';
 import { fetchEventById, createBooking, verifyPayment } from '../api';
+import { loadRazorpay } from '../utils/razorpay';
 import { Calendar, MapPin, Minus, Plus, User, Tag, Heart } from 'lucide-react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../hooks/useWishlist';
@@ -59,13 +60,6 @@ const EventDetail = () => {
         }
     }, [selectedCity, initialCity, navigate]);
 
-    // Load Razorpay script
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.async = true;
-        document.body.appendChild(script);
-    }, []);
 
     const handleBooking = async () => {
         if (!user) {
@@ -122,6 +116,12 @@ const EventDetail = () => {
                     color: '#ef4444'
                 }
             };
+
+            const isLoaded = await loadRazorpay();
+            if (!isLoaded) {
+                alert('Razorpay SDK failed to load. Are you online?');
+                return;
+            }
 
             const rzp = new window.Razorpay(options);
             rzp.open();

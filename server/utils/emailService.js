@@ -1,6 +1,11 @@
-const { Resend } = require('resend');
+const SibApiV3Sdk = require('@getbrevo/brevo');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+const apiKey = apiInstance.authentications['apiKey'];
+
+if (process.env.BREVO_API_KEY) {
+    apiKey.apiKey = process.env.BREVO_API_KEY;
+}
 
 /**
  * Sends a booking confirmation email
@@ -12,8 +17,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const sendBookingConfirmation = async (booking, entity, venue, userName) => {
     console.log(`Attempting to send email to ${booking.email} for ${booking.entityType}...`);
 
-    if (!process.env.RESEND_API_KEY) {
-        console.warn('RESEND_API_KEY not found in environment variables. Skipping email sending.');
+    if (!process.env.BREVO_API_KEY) {
+        console.warn('BREVO_API_KEY not found in environment variables. Skipping email sending.');
         return;
     }
 
@@ -22,7 +27,7 @@ const sendBookingConfirmation = async (booking, entity, venue, userName) => {
     const bookingDate = booking.date ? new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A';
     const appUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 
-    const html = `
+    const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -157,20 +162,16 @@ const sendBookingConfirmation = async (booking, entity, venue, userName) => {
     `;
 
     try {
-        const { data, error } = await resend.emails.send({
-            from: 'BlockBuster <onboarding@resend.dev>', // Replace with your verified sender address
-            to: booking.email,
-            subject: `Booking Confirmed: ${entityName} - BlockBuster`,
-            html: html
-        });
+        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+        sendSmtpEmail.subject = `Booking Confirmed: ${entityName} - BlockBuster`;
+        sendSmtpEmail.htmlContent = htmlContent;
+        sendSmtpEmail.sender = { name: "BlockBuster", email: process.env.BREVO_SENDER_EMAIL };
+        sendSmtpEmail.to = [{ email: booking.email }];
 
-        if (error) {
-            console.error('Error sending email via Resend:', error);
-        } else {
-            console.log(`Confirmation email sent successfully via Resend. ID: ${data.id}`);
-        }
+        const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+        console.log(`Confirmation email sent successfully via Brevo. ID: ${data.messageId}`);
     } catch (error) {
-        console.error('Unexpected error sending email:', error);
+        console.error('Error sending email via Brevo:', error);
     }
 };
 

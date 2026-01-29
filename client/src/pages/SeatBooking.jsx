@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { fetchMovieById, createBooking, verifyPayment, fetchBookedSeats } from '../api';
+import { loadRazorpay } from '../utils/razorpay';
 import Loader from '../components/Loader';
 import { Clock, Monitor } from 'lucide-react';
 
@@ -10,7 +11,7 @@ const SeatBooking = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { user } = useUser();
-    
+
     const venueId = searchParams.get('venueId');
     const showtime = searchParams.get('showtime');
     const date = searchParams.get('date') || new Date().toISOString().split('T')[0];
@@ -59,13 +60,6 @@ const SeatBooking = () => {
         getData();
     }, [id, venueId, date, showtime, screenName]);
 
-    // Load Razorpay script
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.async = true;
-        document.body.appendChild(script);
-    }, []);
 
     const toggleSeat = (seat) => {
         setSelectedSeats(prev =>
@@ -119,11 +113,11 @@ const SeatBooking = () => {
                             razorpay_signature: response.razorpay_signature,
                             bookingId: data.booking._id
                         });
-                        navigate('/booking/success', { 
-                            state: { 
+                        navigate('/booking/success', {
+                            state: {
                                 booking: verifyRes.data.booking,
                                 movie: movie
-                            } 
+                            }
                         });
                     } catch (err) {
                         alert('Payment verification failed');
@@ -138,6 +132,12 @@ const SeatBooking = () => {
                     color: '#ef4444'
                 }
             };
+
+            const isLoaded = await loadRazorpay();
+            if (!isLoaded) {
+                alert('Razorpay SDK failed to load. Are you online?');
+                return;
+            }
 
             const rzp = new window.Razorpay(options);
             rzp.open();
@@ -195,15 +195,15 @@ const SeatBooking = () => {
                                 const isSelected = selectedSeats.includes(seatNumber);
                                 const isBooked = bookedSeats.includes(seatNumber);
                                 const isBest = isBestSeller(row, i);
-                                
+
                                 return (
                                     <button
                                         key={seatNumber}
                                         disabled={isBooked}
                                         onClick={() => toggleSeat(seatNumber)}
                                         className={`w-8 h-8 sm:w-9 sm:h-9 rounded-t-xl border-2 transition-all duration-300 flex items-center justify-center text-xs font-bold relative
-                                            ${isBooked 
-                                                ? 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed' 
+                                            ${isBooked
+                                                ? 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed'
                                                 : isSelected
                                                     ? 'bg-brand-500 border-brand-600 text-white shadow-lg shadow-brand-500/30 scale-110 z-10'
                                                     : isBest

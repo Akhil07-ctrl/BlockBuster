@@ -17,7 +17,8 @@ A full-stack web application for discovering and booking movies, events, restaur
 - MongoDB + Mongoose
 - Slug-based routing & resolution
 - RESTful APIs
-- Resend (Email Service)
+- Nodemailer (Email Service - Gmail)
+- Twilio (WhatsApp Service)
 - Razorpay Node SDK
 
 ## 📦 Project Structure
@@ -51,7 +52,8 @@ BlockBuster/
 - **Premium User Experience**:
   - **Lazy Loading**: High-performance image loading.
   - **Global Error Handling**: Smart fallbacks for missing images.
-  - **Ticket-Style Emails**: Beautiful booking confirmations sent via Resend.
+  - **Ticket-Style Emails**: Beautiful booking confirmations sent via Nodemailer (Gmail).
+  - **WhatsApp Notifications**: Real-time booking alerts via Twilio.
 - **Responsive Design**: Mobile-first approach using Tailwind CSS.
 
 ## 🏃 Local Development
@@ -81,7 +83,11 @@ CLERK_SECRET_KEY=sk_test_...
 RAZORPAY_KEY_ID=rzp_test_...
 RAZORPAY_KEY_SECRET=...
 ADMIN_API_KEY=your_secret_admin_key
-RESEND_API_KEY=re_...
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-16-character-app-password
+TWILIO_ACCOUNT_SID=AC...
+TWILIO_AUTH_TOKEN=...
+TWILIO_WHATSAPP_NUMBER=whatsapp:+1...
 CLIENT_URL=http://localhost:5173
 ```
 

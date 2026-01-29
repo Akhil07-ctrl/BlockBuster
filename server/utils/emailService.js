@@ -1,11 +1,13 @@
-const SibApiV3Sdk = require('@getbrevo/brevo');
+const nodemailer = require('nodemailer');
 
-const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-const apiKey = apiInstance.authentications['apiKey'];
-
-if (process.env.BREVO_API_KEY) {
-    apiKey.apiKey = process.env.BREVO_API_KEY;
-}
+// Configure Nodemailer transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 /**
  * Sends a booking confirmation email
@@ -15,12 +17,17 @@ if (process.env.BREVO_API_KEY) {
  * @param {String} userName - The name of the user
  */
 const sendBookingConfirmation = async (booking, entity, venue, userName) => {
-    console.log(`Attempting to send email to ${booking.email} for ${booking.entityType}...`);
+    console.log('--- EMAIL DEBUG ---');
+    console.log(`To: ${booking.email}`);
+    console.log(`From (User): ${process.env.EMAIL_USER}`);
+    console.log(`Entity: ${entity.title || entity.name}`);
 
-    if (!process.env.BREVO_API_KEY) {
-        console.warn('BREVO_API_KEY not found in environment variables. Skipping email sending.');
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.warn('EMAIL_USER or EMAIL_PASS not found. Skipping.');
         return;
     }
+
+    console.log(`Attempting to send email to ${booking.email} for ${booking.entityType}...`);
 
     const entityName = entity.title || entity.name;
     const entityImage = entity.poster || entity.image;
@@ -161,17 +168,18 @@ const sendBookingConfirmation = async (booking, entity, venue, userName) => {
     </html>
     `;
 
-    try {
-        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-        sendSmtpEmail.subject = `Booking Confirmed: ${entityName} - BlockBuster`;
-        sendSmtpEmail.htmlContent = htmlContent;
-        sendSmtpEmail.sender = { name: "BlockBuster", email: process.env.BREVO_SENDER_EMAIL };
-        sendSmtpEmail.to = [{ email: booking.email }];
+    const mailOptions = {
+        from: `"BlockBuster" <${process.env.EMAIL_USER}>`,
+        to: booking.email,
+        subject: `Booking Confirmed: ${entityName} - BlockBuster`,
+        html: htmlContent
+    };
 
-        const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-        console.log(`Confirmation email sent successfully via Brevo. ID: ${data.messageId}`);
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Confirmation email sent successfully via Nodemailer. Message ID: ${info.messageId}`);
     } catch (error) {
-        console.error('Error sending email via Brevo:', error);
+        console.error('Error sending email via Nodemailer:', error);
     }
 };
 

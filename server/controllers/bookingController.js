@@ -33,6 +33,7 @@ const razorpay = new Razorpay({
 // @route   POST /api/bookings
 // @access  Private (Public for now)
 const createBooking = asyncHandler(async (req, res) => {
+    console.log('--- CREATE BOOKING START ---');
     const { userId, email, entityId, entityType, venueId, date, showTime, screenName, seats, quantity, totalAmount } = req.body;
 
     // Validate required fields
@@ -123,6 +124,7 @@ const createBooking = asyncHandler(async (req, res) => {
 // @route   POST /api/bookings/verify-payment
 // @access  Private
 const verifyPayment = asyncHandler(async (req, res) => {
+    console.log('--- VERIFY PAYMENT START ---');
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingId } = req.body;
 
     // Verify signature
@@ -143,6 +145,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
     }
 
     if (isValid) {
+        console.log('Payment Verification: SUCCESS. Updating booking and sending email...');
         booking.paymentId = razorpay_payment_id;
         booking.paymentSignature = razorpay_signature;
         booking.paymentStatus = 'completed';

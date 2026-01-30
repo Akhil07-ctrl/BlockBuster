@@ -168,7 +168,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
             const userName = user ? user.firstName : 'User';
 
             if (entity) {
-                await sendBookingConfirmation(populatedBooking, entity, venue, userName);
+                sendBookingConfirmation(populatedBooking, entity, venue, userName);
             }
         } catch (emailErr) {
             console.error('Email preparation error:', emailErr);
@@ -214,7 +214,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
             if (userPhone) {
                 const userName = await User.findOne({ clerkId: booking.userId }).select('firstName');
                 const nameToSend = userName ? userName.firstName : 'User';
-                await sendWhatsAppConfirmation(userPhone, populatedBooking, nameToSend);
+                sendWhatsAppConfirmation(userPhone, populatedBooking, nameToSend);
             } else {
                 console.log('No phone number found for user, skipping WhatsApp confirmation');
             }

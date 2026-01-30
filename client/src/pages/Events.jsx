@@ -3,7 +3,7 @@ import { useLocation } from '../context/LocationContext';
 import { fetchEvents } from '../api';
 import { Filter, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { FilterSection, Checkbox } from '../components/FilterComponents';
+import { FilterSection, Checkbox, FilterDrawer } from '../components/FilterComponents';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Loader from '../components/Loader';
 import { handleImageError } from '../utils/imageUtils';
@@ -12,6 +12,7 @@ const EventsPage = () => {
     const { selectedCity } = useLocation();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
 
     // Filter states
     const [selectedTypes, setSelectedTypes] = useState([]);
@@ -48,6 +49,8 @@ const EventsPage = () => {
 
     const clearFilters = () => {
         setSelectedTypes([]);
+        setShowMobileFilters(false);
+        window.location.reload();
     };
 
     if (!selectedCity) return (
@@ -62,6 +65,7 @@ const EventsPage = () => {
             </Motion.div>
         </Motion.div>
     );
+
     if (loading) return <Loader />;
 
     return (
@@ -96,57 +100,54 @@ const EventsPage = () => {
                     <p className="text-gray-600">
                         Showing <span className="font-bold text-brand-600">{filteredEvents.length}</span> of <span className="font-bold">{events.length}</span> events
                     </p>
+
+                    {/* Mobile Filter Toggle */}
+                    <Motion.button
+                        onClick={() => setShowMobileFilters(true)}
+                        className="lg:hidden mt-6 w-full flex items-center justify-center gap-2 bg-white border border-gray-200 py-3 rounded-xl font-bold text-gray-700 shadow-sm hover:shadow-md transition-all"
+                        whileTap={{ scale: 0.98 }}
+                    >
+                        <Filter size={18} className="text-brand-600" />
+                        Filters
+                        {selectedTypes.length > 0 && (
+                            <span className="bg-brand-600 text-white w-5 h-5 rounded-full text-[10px] flex items-center justify-center">
+                                {selectedTypes.length}
+                            </span>
+                        )}
+                    </Motion.button>
                 </Motion.div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Filters Sidebar */}
-                    <Motion.div
-                        className="w-full lg:w-64 shrink-0"
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
+                    <FilterDrawer
+                        isOpen={showMobileFilters}
+                        onClose={() => setShowMobileFilters(false)}
+                        onClear={clearFilters}
+                        hasAppliedFilters={selectedTypes.length > 0}
                     >
                         <Motion.div
-                            className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg sticky top-24"
-                            whileHover={{ boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
-                            transition={{ duration: 0.3 }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 }}
                         >
-                            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-brand-50/50 to-purple-50/50">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Filter size={20} className="text-brand-600" />
-                                        <h3 className="font-bold text-lg text-gray-900">Filters</h3>
-                                    </div>
-                                    <AnimatePresence>
-                                        {selectedTypes.length > 0 && (
-                                            <Motion.button
-                                                onClick={clearFilters}
-                                                className="text-brand-600 text-sm font-bold hover:text-brand-700 transition-colors"
-                                                initial={{ opacity: 0, scale: 0.8 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                exit={{ opacity: 0, scale: 0.8 }}
-                                                whileHover={{ scale: 1.1 }}
-                                            >
-                                                Clear
-                                            </Motion.button>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-                            </div>
-                            <div className="p-6">
-                                <FilterSection title="Event Type">
-                                    {eventTypes.map(type => (
+                            <FilterSection title="Event Type">
+                                {eventTypes.map((type, i) => (
+                                    <Motion.div
+                                        key={type}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.15 + i * 0.02 }}
+                                    >
                                         <Checkbox
-                                            key={type}
                                             label={type}
                                             checked={selectedTypes.includes(type)}
                                             onChange={() => toggleFilter(type, selectedTypes, setSelectedTypes)}
                                         />
-                                    ))}
-                                </FilterSection>
-                            </div>
+                                    </Motion.div>
+                                ))}
+                            </FilterSection>
                         </Motion.div>
-                    </Motion.div>
+                    </FilterDrawer>
 
                     {/* Events Grid */}
                     <Motion.div
@@ -158,6 +159,7 @@ const EventsPage = () => {
                         <AnimatePresence mode="wait">
                             {filteredEvents.length > 0 ? (
                                 <Motion.div
+                                    key="events-grid"
                                     initial="hidden"
                                     animate="visible"
                                     exit="hidden"
@@ -165,7 +167,9 @@ const EventsPage = () => {
                                         hidden: { opacity: 0 },
                                         visible: {
                                             opacity: 1,
-                                            transition: { staggerChildren: 0.05 }
+                                            transition: {
+                                                staggerChildren: 0.05
+                                            }
                                         }
                                     }}
                                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -183,7 +187,7 @@ const EventsPage = () => {
                                                     className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-md group-hover:shadow-xl transition-all h-full flex flex-col"
                                                     whileHover={{ y: -4 }}
                                                 >
-                                                    <div className="h-48 bg-gray-200 overflow-hidden">
+                                                    <div className="h-52 bg-gray-200 overflow-hidden relative">
                                                         <Motion.img
                                                             src={event.image || 'https://placehold.co/400x300'}
                                                             alt={event.title}
@@ -192,16 +196,27 @@ const EventsPage = () => {
                                                             onError={(e) => handleImageError(e, 'event')}
                                                             loading="lazy"
                                                         />
+                                                        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                                                            {event.type}
+                                                        </div>
                                                     </div>
                                                     <div className="p-5 flex-1 flex flex-col">
-                                                        <Motion.h3
-                                                            className="font-bold text-gray-900 group-hover:text-brand-600 mb-2 line-clamp-2"
-                                                            whileHover={{ x: 4 }}
-                                                        >
+                                                        <h3 className="font-bold text-gray-900 group-hover:text-brand-600 mb-2 line-clamp-2 transition-colors">
                                                             {event.title}
-                                                        </Motion.h3>
-                                                        <p className="text-sm text-gray-600 mb-4 flex-1">{event.venue?.name}</p>
-                                                        <p className="text-lg font-black bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent">₹{event.price}</p>
+                                                        </h3>
+                                                        <div className="flex items-center gap-2 text-gray-500 text-sm mb-4 flex-1">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+                                                            <span className="truncate">{event.venue?.name}</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between mt-auto">
+                                                            <p className="text-xl font-black bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent">₹{event.price}</p>
+                                                            <Motion.div
+                                                                className="text-brand-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                whileHover={{ x: 3 }}
+                                                            >
+                                                                <Filter size={16} />
+                                                            </Motion.div>
+                                                        </div>
                                                     </div>
                                                 </Motion.div>
                                             </Link>
@@ -210,9 +225,11 @@ const EventsPage = () => {
                                 </Motion.div>
                             ) : (
                                 <Motion.div
+                                    key="no-events"
                                     className="col-span-full p-12 bg-white rounded-2xl border-2 border-dashed border-gray-300 text-center"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
                                 >
                                     <Calendar size={48} className="mx-auto mb-4 text-gray-300" />
                                     <p className="text-gray-600 font-semibold mb-2">No events match your filters</p>

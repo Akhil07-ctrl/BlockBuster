@@ -1,13 +1,7 @@
-const nodemailer = require('nodemailer');
+const brevo = require('@getbrevo/brevo');
 
-// Configure Nodemailer transporter
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
+const apiInstance = new brevo.TransactionalEmailsApi();
+apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 /**
  * Sends a booking confirmation email
@@ -17,17 +11,10 @@ const transporter = nodemailer.createTransport({
  * @param {String} userName - The name of the user
  */
 const sendBookingConfirmation = async (booking, entity, venue, userName) => {
-    console.log('--- EMAIL DEBUG ---');
-    console.log(`To: ${booking.email}`);
-    console.log(`From (User): ${process.env.EMAIL_USER}`);
-    console.log(`Entity: ${entity.title || entity.name}`);
-
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.warn('EMAIL_USER or EMAIL_PASS not found. Skipping.');
+    if (!process.env.BREVO_API_KEY) {
+        console.warn('BREVO_API_KEY not found. Skipping.');
         return;
     }
-
-    console.log(`Attempting to send email to ${booking.email} for ${booking.entityType}...`);
 
     const entityName = entity.title || entity.name;
     const entityImage = entity.poster || entity.image;
@@ -168,18 +155,17 @@ const sendBookingConfirmation = async (booking, entity, venue, userName) => {
     </html>
     `;
 
-    const mailOptions = {
-        from: `"BlockBuster" <${process.env.EMAIL_USER}>`,
-        to: booking.email,
-        subject: `Booking Confirmed: ${entityName} - BlockBuster`,
-        html: htmlContent
-    };
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = `Booking Confirmed: ${entityName} - BlockBuster`;
+    sendSmtpEmail.htmlContent = htmlContent;
+    sendSmtpEmail.sender = { name: 'BlockBuster', email: process.env.EMAIL_USER };
+    sendSmtpEmail.to = [{ email: booking.email, name: userName }];
 
     try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`Confirmation email sent successfully via Nodemailer. Message ID: ${info.messageId}`);
+        const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+        console.log(`Confirmation email sent successfully via Brevo. Message ID: ${data.messageId}`);
     } catch (error) {
-        console.error('Error sending email via Nodemailer:', error);
+        console.error('Error sending email via Brevo:', error);
     }
 };
 

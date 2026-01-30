@@ -3,13 +3,17 @@ import { useLocation } from '../context/LocationContext';
 import { fetchStores } from '../api';
 import { Filter, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { FilterSection, Checkbox } from '../components/FilterComponents';
+import { FilterSection, Checkbox, FilterDrawer } from '../components/FilterComponents';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
+import { Star } from 'lucide-react';
 import Loader from '../components/Loader';
+import { handleImageError } from '../utils/imageUtils';
 
 const StoresPage = () => {
     const { selectedCity } = useLocation();
     const [stores, setStores] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
 
     // Filter states
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -46,75 +50,198 @@ const StoresPage = () => {
 
     const clearFilters = () => {
         setSelectedCategories([]);
+        setShowMobileFilters(false);
+        window.location.reload();
     };
 
-    if (!selectedCity) return <div className="p-10 text-center">Please select a city first.</div>;
+    if (!selectedCity) return (
+        <Motion.div
+            className="h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+        >
+            <Motion.div className="text-center">
+                <ShoppingBag size={48} className="mx-auto mb-4 text-gray-400" />
+                <p className="text-gray-600 font-semibold">Please select a city first.</p>
+            </Motion.div>
+        </Motion.div>
+    );
+
     if (loading) return <Loader />;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col md:flex-row gap-8">
-                {/* Filters Sidebar */}
-                <div className="w-full md:w-1/4">
-                    <div className="bg-white p-6 rounded-xl border sticky top-20">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                                <Filter size={20} />
-                                <h3 className="font-bold text-lg">Filters</h3>
-                            </div>
-                            {selectedCategories.length > 0 && (
-                                <button onClick={clearFilters} className="text-brand-600 text-sm font-medium hover:underline">
-                                    Clear All
-                                </button>
-                            )}
+        <Motion.div
+            className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+        >
+            <div className="container mx-auto px-4 py-12">
+                {/* Page Header */}
+                <Motion.div
+                    className="mb-12"
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <div className="flex items-center gap-4 mb-4">
+                        <Motion.div
+                            className="p-3 bg-gradient-to-br from-brand-500 to-purple-600 rounded-2xl text-white shadow-lg"
+                            whileHover={{ rotate: 10, scale: 1.1 }}
+                        >
+                            <ShoppingBag size={32} />
+                        </Motion.div>
+                        <div>
+                            <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-gray-900 via-brand-600 to-purple-600 bg-clip-text text-transparent">
+                                Stores
+                            </h1>
+                            <p className="text-gray-600 font-medium mt-1">in {selectedCity.name}</p>
                         </div>
-
-                        <FilterSection title="Category">
-                            {categories.map(category => (
-                                <Checkbox
-                                    key={category}
-                                    label={category}
-                                    checked={selectedCategories.includes(category)}
-                                    onChange={() => toggleFilter(category, selectedCategories, setSelectedCategories)}
-                                />
-                            ))}
-                        </FilterSection>
                     </div>
-                </div>
-
-                {/* Stores Grid */}
-                <div className="w-full md:w-3/4">
-                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                        <ShoppingBag className="text-brand-500" />
-                        Stores in {selectedCity.name}
-                    </h2>
-
-                    <p className="text-sm text-gray-500 mb-4">
-                        Showing {filteredStores.length} of {stores.length} stores
+                    <p className="text-gray-600">
+                        Showing <span className="font-bold text-brand-600">{filteredStores.length}</span> of <span className="font-bold">{stores.length}</span> stores
                     </p>
 
-                    {filteredStores.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredStores.map(store => (
-                                <Link to={`/stores/${store._id}`} key={store._id} className="group bg-white rounded-xl border overflow-hidden hover:shadow-lg transition-shadow">
-                                    <div className="h-52 bg-gray-200 overflow-hidden">
-                                        <img src={store.image || 'https://placehold.co/400x300'} alt={store.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="font-bold text-gray-900 group-hover:text-brand-600 mb-1">{store.title}</h3>
-                                        <p className="text-sm text-gray-500">{store.category}</p>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="p-10 bg-gray-50 rounded-xl text-center text-gray-500">
-                            No stores match your filters. Try adjusting the filters.
-                        </div>
-                    )}
+                    {/* Mobile Filter Toggle */}
+                    <Motion.button
+                        onClick={() => setShowMobileFilters(true)}
+                        className="lg:hidden mt-6 w-full flex items-center justify-center gap-2 bg-white border border-gray-200 py-3 rounded-xl font-bold text-gray-700 shadow-sm hover:shadow-md transition-all"
+                        whileTap={{ scale: 0.98 }}
+                    >
+                        <Filter size={18} className="text-brand-600" />
+                        Filters
+                        {selectedCategories.length > 0 && (
+                            <span className="bg-brand-600 text-white w-5 h-5 rounded-full text-[10px] flex items-center justify-center">
+                                {selectedCategories.length}
+                            </span>
+                        )}
+                    </Motion.button>
+                </Motion.div>
+
+                <div className="flex flex-col lg:flex-row gap-8">
+                    {/* Filters Sidebar */}
+                    <FilterDrawer
+                        isOpen={showMobileFilters}
+                        onClose={() => setShowMobileFilters(false)}
+                        onClear={clearFilters}
+                        hasAppliedFilters={selectedCategories.length > 0}
+                    >
+                        <Motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 }}
+                        >
+                            <FilterSection title="Category">
+                                {categories.map((cat, i) => (
+                                    <Motion.div
+                                        key={cat}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.15 + i * 0.02 }}
+                                    >
+                                        <Checkbox
+                                            label={cat}
+                                            checked={selectedCategories.includes(cat)}
+                                            onChange={() => toggleFilter(cat, selectedCategories, setSelectedCategories)}
+                                        />
+                                    </Motion.div>
+                                ))}
+                            </FilterSection>
+                        </Motion.div>
+                    </FilterDrawer>
+
+                    {/* Stores Grid */}
+                    <Motion.div
+                        className="flex-1"
+                        initial={{ x: 20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
+                        <AnimatePresence mode="wait">
+                            {filteredStores.length > 0 ? (
+                                <Motion.div
+                                    key="stores-grid"
+                                    initial="hidden"
+                                    animate="visible"
+                                    exit="hidden"
+                                    variants={{
+                                        hidden: { opacity: 0 },
+                                        visible: {
+                                            opacity: 1,
+                                            transition: {
+                                                staggerChildren: 0.05
+                                            }
+                                        }
+                                    }}
+                                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                                >
+                                    {filteredStores.map(store => (
+                                        <Motion.div
+                                            key={store._id}
+                                            variants={{
+                                                hidden: { opacity: 0, y: 20 },
+                                                visible: { opacity: 1, y: 0 }
+                                            }}
+                                        >
+                                            <Link to={`/stores/${store._id}`} className="group block h-full">
+                                                <Motion.div
+                                                    className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-md group-hover:shadow-xl transition-all h-full flex flex-col"
+                                                    whileHover={{ y: -4 }}
+                                                >
+                                                    <div className="h-52 bg-gray-200 overflow-hidden relative">
+                                                        <Motion.img
+                                                            src={store.image || 'https://placehold.co/400x300'}
+                                                            alt={store.title}
+                                                            className="w-full h-full object-cover"
+                                                            whileHover={{ scale: 1.05 }}
+                                                            onError={(e) => handleImageError(e, 'store')}
+                                                            loading="lazy"
+                                                        />
+                                                        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                                                            {store.category}
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-5 flex-1 flex flex-col">
+                                                        <h3 className="font-bold text-gray-900 group-hover:text-brand-600 mb-2 line-clamp-1 transition-colors">
+                                                            {store.title}
+                                                        </h3>
+                                                        <div className="flex items-center gap-1.5 mb-4">
+                                                            <Star size={14} fill="currentColor" className="text-yellow-400" />
+                                                            <span className="text-sm font-bold text-gray-700">{store.rating || '4.5'}</span>
+                                                        </div>
+                                                        <div className="mt-auto flex items-center justify-between">
+                                                            <Motion.button
+                                                                className="w-full py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-brand-200"
+                                                                whileHover={{ scale: 1.02 }}
+                                                                whileTap={{ scale: 0.98 }}
+                                                            >
+                                                                Visit Store
+                                                            </Motion.button>
+                                                        </div>
+                                                    </div>
+                                                </Motion.div>
+                                            </Link>
+                                        </Motion.div>
+                                    ))}
+                                </Motion.div>
+                            ) : (
+                                <Motion.div
+                                    key="no-stores"
+                                    className="col-span-full p-12 bg-white rounded-2xl border-2 border-dashed border-gray-300 text-center"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                >
+                                    <ShoppingBag size={48} className="mx-auto mb-4 text-gray-300" />
+                                    <p className="text-gray-600 font-semibold mb-2">No stores match your filters</p>
+                                    <p className="text-gray-500 text-sm">Try adjusting your filter selections</p>
+                                </Motion.div>
+                            )}
+                        </AnimatePresence>
+                    </Motion.div>
                 </div>
             </div>
-        </div>
+        </Motion.div>
     );
 };
 

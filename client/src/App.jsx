@@ -46,7 +46,8 @@ function App() {
     Promise.resolve().then(() => setLoading(true));
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 1000);
+
     return () => clearTimeout(timer);
   }, [routerLocation.pathname]);
 
@@ -116,8 +117,8 @@ function App() {
             </Link>
           </Motion.div>
 
-          {/* Search Bar */}
-          <div className="hidden md:block flex-1 max-w-md mx-8">
+          {/* Search Bar - Visible on sm and up for more header space */}
+          <div className="hidden sm:block flex-1 max-w-xs md:max-w-md mx-4 lg:mx-8">
             <SearchBar />
           </div>
 
@@ -126,7 +127,7 @@ function App() {
             {/* City Selector */}
             <Motion.button
               onClick={() => updateCity(null)}
-              className="group hidden sm:flex items-center gap-2 text-gray-700 hover:text-brand-600 text-sm font-semibold transition-colors relative"
+              className="group hidden lg:flex items-center gap-2 text-gray-700 hover:text-brand-600 text-sm font-semibold transition-colors relative"
               whileHover={{ x: 4 }}
             >
               <Motion.div
@@ -135,7 +136,7 @@ function App() {
               >
                 <MapPin size={16} />
               </Motion.div>
-              <span className="hidden md:inline">{selectedCity ? selectedCity.name : 'Select City'}</span>
+              <span>{selectedCity ? selectedCity.name : 'Select City'}</span>
               <Motion.svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -150,15 +151,6 @@ function App() {
               </Motion.svg>
             </Motion.button>
 
-            {/* Mobile Search Toggle */}
-            <Motion.button
-              onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Search size={20} className="text-gray-700" />
-            </Motion.button>
 
             {/* Auth Buttons */}
             <SignedOut>
@@ -180,15 +172,15 @@ function App() {
 
             <SignedIn>
               <div className="flex items-center gap-3 md:gap-4">
-                <Link 
-                  to="/profile" 
-                  className="text-sm font-semibold text-gray-700 hover:text-brand-600 transition-colors hidden md:inline-block"
+                <Link
+                  to="/profile"
+                  className="text-sm font-semibold text-gray-700 hover:text-brand-600 transition-colors hidden lg:inline-block"
                 >
                   My Bookings
                 </Link>
-                <div className="h-4 w-px bg-gray-200 hidden md:block"></div>
+                <div className="h-4 w-px bg-gray-200 hidden lg:block"></div>
                 <Motion.span
-                  className="text-sm font-semibold text-gray-700 hidden md:inline-block"
+                  className="text-sm font-semibold text-gray-700 hidden lg:inline-block"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                 >
@@ -203,10 +195,10 @@ function App() {
               </div>
             </SignedIn>
 
-            {/* Mobile Menu Toggle */}
+            {/* Mobile/Tablet Menu Toggle */}
             <Motion.button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -224,7 +216,7 @@ function App() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile/Tablet Menu */}
         <Motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{
@@ -232,10 +224,10 @@ function App() {
             height: mobileMenuOpen ? 'auto' : 0
           }}
           transition={{ duration: 0.3 }}
-          className={`md:hidden ${mobileMenuOpen ? 'overflow-visible' : 'overflow-hidden'} border-t border-gray-100/50 bg-white/50 backdrop-blur-xl`}
+          className={`lg:hidden ${mobileMenuOpen ? 'overflow-visible' : 'overflow-hidden'} border-t border-gray-100/50 bg-white/50 backdrop-blur-xl`}
         >
           <div className="px-4 py-4 space-y-3">
-            <div className="pb-3 border-b border-gray-100">
+            <div className="pb-3 border-b border-gray-100 sm:hidden">
               <SearchBar />
             </div>
             <SignedIn>

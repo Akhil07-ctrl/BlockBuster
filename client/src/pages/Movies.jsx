@@ -3,7 +3,7 @@ import { useLocation } from '../context/LocationContext';
 import { fetchMovies } from '../api';
 import { Filter, Film, X, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { FilterSection, Checkbox } from '../components/FilterComponents';
+import { FilterSection, Checkbox, FilterDrawer } from '../components/FilterComponents';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Loader from '../components/Loader';
 import { handleImageError } from '../utils/imageUtils';
@@ -92,7 +92,7 @@ const MoviesPage = () => {
 
     const genres = ['Action', 'Drama', 'Comedy', 'Thriller', 'Romance', 'Horror', 'Sci-Fi'];
     const languages = ['Hindi', 'English', 'Tamil', 'Telugu', 'Malayalam'];
-    const certificates = ['U', 'UA', 'A', 'S'];
+    const certificates = ['U', 'U/A', 'A', 'S'];
 
     useEffect(() => {
         const getMovies = async () => {
@@ -119,7 +119,10 @@ const MoviesPage = () => {
 
     const filteredMovies = movies.filter(movie => {
         if (selectedGenres.length > 0 && !movie.genre?.some(g => selectedGenres.includes(g))) return false;
-        if (selectedLanguages.length > 0 && !selectedLanguages.includes(movie.language)) return false;
+        if (selectedLanguages.length > 0) {
+            const movieLangs = movie.language?.split(',').map(l => l.trim()) || [];
+            if (!movieLangs.some(l => selectedLanguages.includes(l))) return false;
+        }
         if (selectedCertificates.length > 0 && !selectedCertificates.includes(movie.certificate)) return false;
         return true;
     });
@@ -128,6 +131,8 @@ const MoviesPage = () => {
         setSelectedGenres([]);
         setSelectedLanguages([]);
         setSelectedCertificates([]);
+        setShowMobileFilters(false);
+        window.location.reload();
     };
 
     if (!selectedCity) return (
@@ -196,131 +201,81 @@ const MoviesPage = () => {
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Filters Sidebar */}
-                    <AnimatePresence>
-                        {(showMobileFilters || window.innerWidth >= 1024) && (
-                            <Motion.div
-                                className={`fixed lg:relative inset-0 lg:inset-auto z-[60] lg:z-0 lg:w-64 shrink-0 ${showMobileFilters ? 'flex' : 'hidden lg:block'}`}
-                                initial={window.innerWidth < 1024 ? { opacity: 0 } : false}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                            >
-                                {/* Mobile Backdrop */}
-                                <div
-                                    className="lg:hidden absolute inset-0 bg-black/60 backdrop-blur-sm"
-                                    onClick={() => setShowMobileFilters(false)}
-                                />
+                    <FilterDrawer
+                        isOpen={showMobileFilters}
+                        onClose={() => setShowMobileFilters(false)}
+                        onClear={clearFilters}
+                        hasAppliedFilters={selectedGenres.length > 0 || selectedLanguages.length > 0 || selectedCertificates.length > 0}
+                    >
+                        <Motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 }}
+                        >
+                            <FilterSection title="Genre">
+                                {genres.map((genre, i) => (
+                                    <Motion.div
+                                        key={genre}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.15 + i * 0.02 }}
+                                    >
+                                        <Checkbox
+                                            label={genre}
+                                            checked={selectedGenres.includes(genre)}
+                                            onChange={() => toggleFilter(genre, selectedGenres, setSelectedGenres)}
+                                        />
+                                    </Motion.div>
+                                ))}
+                            </FilterSection>
+                        </Motion.div>
 
-                                <Motion.div
-                                    className="relative bg-white w-[280px] lg:w-full h-full lg:h-auto rounded-r-3xl lg:rounded-2xl border-r lg:border border-gray-200 overflow-hidden shadow-2xl lg:shadow-lg sticky top-0 lg:top-24 flex flex-col"
-                                    initial={window.innerWidth < 1024 ? { x: -280 } : false}
-                                    animate={{ x: 0 }}
-                                    exit={{ x: -280 }}
-                                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                >
-                                    <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-brand-50/50 to-purple-50/50 flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <Filter size={20} className="text-brand-600" />
-                                            <h3 className="font-bold text-lg text-gray-900">Filters</h3>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <AnimatePresence>
-                                                {(selectedGenres.length > 0 || selectedLanguages.length > 0 || selectedCertificates.length > 0) && (
-                                                    <Motion.button
-                                                        onClick={clearFilters}
-                                                        className="text-brand-600 text-sm font-bold hover:text-brand-700 transition-colors"
-                                                        initial={{ opacity: 0, scale: 0.8 }}
-                                                        animate={{ opacity: 1, scale: 1 }}
-                                                        exit={{ opacity: 0, scale: 0.8 }}
-                                                        whileHover={{ scale: 1.1 }}
-                                                        whileTap={{ scale: 0.95 }}
-                                                    >
-                                                        Clear
-                                                    </Motion.button>
-                                                )}
-                                            </AnimatePresence>
-                                            <button
-                                                onClick={() => setShowMobileFilters(false)}
-                                                className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                                            >
-                                                <X size={20} className="text-gray-500" />
-                                            </button>
-                                        </div>
-                                    </div>
+                        <Motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.25 }}
+                        >
+                            <FilterSection title="Language">
+                                {languages.map((lang, i) => (
+                                    <Motion.div
+                                        key={lang}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.25 + i * 0.02 }}
+                                    >
+                                        <Checkbox
+                                            label={lang}
+                                            checked={selectedLanguages.includes(lang)}
+                                            onChange={() => toggleFilter(lang, selectedLanguages, setSelectedLanguages)}
+                                        />
+                                    </Motion.div>
+                                ))}
+                            </FilterSection>
+                        </Motion.div>
 
-                                    <div className="p-6 space-y-6 overflow-y-auto">
-                                        <Motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.15 }}
-                                        >
-                                            <FilterSection title="Genre">
-                                                {genres.map((genre, i) => (
-                                                    <Motion.div
-                                                        key={genre}
-                                                        initial={{ opacity: 0, x: -10 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: 0.15 + i * 0.02 }}
-                                                    >
-                                                        <Checkbox
-                                                            label={genre}
-                                                            checked={selectedGenres.includes(genre)}
-                                                            onChange={() => toggleFilter(genre, selectedGenres, setSelectedGenres)}
-                                                        />
-                                                    </Motion.div>
-                                                ))}
-                                            </FilterSection>
-                                        </Motion.div>
-
-                                        <Motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.25 }}
-                                        >
-                                            <FilterSection title="Language">
-                                                {languages.map((lang, i) => (
-                                                    <Motion.div
-                                                        key={lang}
-                                                        initial={{ opacity: 0, x: -10 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: 0.25 + i * 0.02 }}
-                                                    >
-                                                        <Checkbox
-                                                            label={lang}
-                                                            checked={selectedLanguages.includes(lang)}
-                                                            onChange={() => toggleFilter(lang, selectedLanguages, setSelectedLanguages)}
-                                                        />
-                                                    </Motion.div>
-                                                ))}
-                                            </FilterSection>
-                                        </Motion.div>
-
-                                        <Motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.35 }}
-                                        >
-                                            <FilterSection title="Certificate">
-                                                {certificates.map((cert, i) => (
-                                                    <Motion.div
-                                                        key={cert}
-                                                        initial={{ opacity: 0, x: -10 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: 0.35 + i * 0.02 }}
-                                                    >
-                                                        <Checkbox
-                                                            label={cert}
-                                                            checked={selectedCertificates.includes(cert)}
-                                                            onChange={() => toggleFilter(cert, selectedCertificates, setSelectedCertificates)}
-                                                        />
-                                                    </Motion.div>
-                                                ))}
-                                            </FilterSection>
-                                        </Motion.div>
-                                    </div>
-                                </Motion.div>
-                            </Motion.div>
-                        )}
-                    </AnimatePresence>
+                        <Motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.35 }}
+                        >
+                            <FilterSection title="Certificate">
+                                {certificates.map((cert, i) => (
+                                    <Motion.div
+                                        key={cert}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.35 + i * 0.02 }}
+                                    >
+                                        <Checkbox
+                                            label={cert}
+                                            checked={selectedCertificates.includes(cert)}
+                                            onChange={() => toggleFilter(cert, selectedCertificates, setSelectedCertificates)}
+                                        />
+                                    </Motion.div>
+                                ))}
+                            </FilterSection>
+                        </Motion.div>
+                    </FilterDrawer>
 
                     {/* Movies Grid */}
                     <Motion.div
@@ -332,6 +287,7 @@ const MoviesPage = () => {
                         <AnimatePresence mode="wait">
                             {filteredMovies.length > 0 ? (
                                 <Motion.div
+                                    key="movie-grid"
                                     initial="hidden"
                                     animate="visible"
                                     exit="hidden"
@@ -352,9 +308,11 @@ const MoviesPage = () => {
                                 </Motion.div>
                             ) : (
                                 <Motion.div
+                                    key="no-results"
                                     className="col-span-full p-12 bg-white rounded-2xl border-2 border-dashed border-gray-300 text-center"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
                                 >
                                     <Film size={48} className="mx-auto mb-4 text-gray-300" />
                                     <p className="text-gray-600 font-semibold mb-2">No movies match your filters</p>

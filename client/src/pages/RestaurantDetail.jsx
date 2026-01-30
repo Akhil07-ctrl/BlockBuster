@@ -241,7 +241,12 @@ const RestaurantDetail = () => {
                         {restaurant.priceRange && (
                             <div className="flex items-center gap-2 text-gray-700">
                                 <DollarSign size={20} className="text-brand-500" />
-                                <span>Price Range: {restaurant.priceRange}</span>
+                                <span>Price Range: {{
+                                    '$': 'Under ₹500',
+                                    '$$': '₹500 - ₹1000',
+                                    '$$$': '₹1000 - ₹2000',
+                                    '$$$$': 'Above ₹2000'
+                                }[restaurant.priceRange] || restaurant.priceRange}</span>
                             </div>
                         )}
 

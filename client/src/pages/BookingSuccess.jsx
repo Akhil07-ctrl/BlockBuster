@@ -39,9 +39,9 @@ const BookingSuccess = () => {
 
     const containerVariants = {
         hidden: { opacity: 0 },
-        visible: { 
+        visible: {
             opacity: 1,
-            transition: { 
+            transition: {
                 staggerChildren: 0.1,
                 delayChildren: 0.3
             }
@@ -60,29 +60,30 @@ const BookingSuccess = () => {
     const isMovie = booking.entityType === 'Movie';
 
     return (
-        <div className="min-h-screen relative flex flex-col items-center justify-center p-4 py-20 bg-gray-50 overflow-hidden">
+        <div className="min-h-screen relative flex flex-col items-center justify-center p-4 py-20 bg-gray-50 overflow-x-hidden">
+
             {/* Confetti effect */}
             {confettiItems.map((item) => (
                 <Motion.div
                     key={item.id}
                     className="absolute rounded-full z-0"
-                    style={{ 
+                    style={{
                         backgroundColor: item.color,
                         width: item.size,
                         height: item.size
                     }}
-                    initial={{ 
-                        opacity: 1, 
-                        x: `${item.initialX}vw`, 
-                        y: -100 
+                    initial={{
+                        opacity: 1,
+                        x: `${item.initialX}vw`,
+                        y: -100
                     }}
-                    animate={{ 
-                        opacity: [1, 1, 0], 
+                    animate={{
+                        opacity: [1, 1, 0],
                         y: '110vh',
                         x: `${item.animateX}vw`,
                         rotate: 360
                     }}
-                    transition={{ 
+                    transition={{
                         duration: item.duration,
                         ease: 'linear',
                         repeat: Infinity,
@@ -91,18 +92,18 @@ const BookingSuccess = () => {
                 ></Motion.div>
             ))}
 
-            <Motion.div 
+            <Motion.div
                 className="w-full max-w-2xl relative z-10"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
             >
                 {/* Success Icon */}
-                <Motion.div 
+                <Motion.div
                     className="flex flex-col items-center mb-8"
                     variants={itemVariants}
                 >
-                    <Motion.div 
+                    <Motion.div
                         className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-white shadow-xl shadow-green-500/20 mb-6"
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
@@ -119,7 +120,7 @@ const BookingSuccess = () => {
                 </Motion.div>
 
                 {/* Ticket Card */}
-                <Motion.div 
+                <Motion.div
                     className="bg-white rounded-3xl shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-100 mb-8"
                     variants={itemVariants}
                 >
@@ -149,7 +150,7 @@ const BookingSuccess = () => {
                                 <h2 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tight">
                                     {displayTitle}
                                 </h2>
-                                
+
                                 <div className="grid grid-cols-2 gap-y-4 gap-x-6">
                                     <div className="flex items-start gap-3">
                                         <div className="p-2 bg-gray-50 rounded-lg text-gray-400">
@@ -158,7 +159,7 @@ const BookingSuccess = () => {
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Date & Time</p>
                                             <p className="text-xs font-bold text-gray-700">
-                                                {booking.date ? new Date(booking.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'} 
+                                                {booking.date ? new Date(booking.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
                                                 {booking.showTime && ` • ${booking.showTime}`}
                                                 {booking.screenName && <span className="ml-1 opacity-60">({booking.screenName})</span>}
                                             </p>
@@ -216,19 +217,19 @@ const BookingSuccess = () => {
                 </Motion.div>
 
                 {/* Actions */}
-                <Motion.div 
+                <Motion.div
                     className="flex flex-col sm:flex-row gap-4 justify-center"
                     variants={itemVariants}
                 >
-                    <Link 
-                        to="/profile" 
+                    <Link
+                        to="/profile"
                         className="flex-1 inline-flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-brand-500 hover:text-brand-600 text-gray-700 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all"
                     >
                         <Ticket size={18} />
                         View My Bookings
                     </Link>
-                    <Link 
-                        to="/" 
+                    <Link
+                        to="/"
                         className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-600/20 transition-all"
                     >
                         <Home size={18} />
@@ -236,7 +237,7 @@ const BookingSuccess = () => {
                     </Link>
                 </Motion.div>
 
-                <Motion.div 
+                <Motion.div
                     className="mt-12 p-6 bg-blue-50 rounded-2xl border border-blue-100 flex items-start gap-4"
                     variants={itemVariants}
                 >

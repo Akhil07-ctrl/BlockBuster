@@ -110,7 +110,7 @@ const SearchBar = () => {
     return (
         <div ref={searchRef} className="relative flex-1 max-w-md w-full">
             {/* Search Input Container */}
-            <Motion.div 
+            <Motion.div
                 className="relative group"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -137,7 +137,7 @@ const SearchBar = () => {
                         className="w-full bg-white border border-gray-300 hover:border-brand-400 focus:border-brand-500 focus:outline-none rounded-xl py-2.5 pl-12 pr-12 text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg focus:shadow-brand-500/10"
                     />
 
-                    <div className="absolute left-12 pointer-events-none overflow-hidden h-5 flex items-center">
+                    <div className="absolute left-12 right-12 pointer-events-none overflow-hidden h-5 flex items-center">
                         <AnimatePresence mode="wait">
                             {!query && (
                                 <Motion.span
@@ -146,7 +146,7 @@ const SearchBar = () => {
                                     animate={{ y: 0, opacity: 1 }}
                                     exit={{ y: -20, opacity: 0 }}
                                     transition={{ duration: 0.5, ease: "easeInOut" }}
-                                    className="text-gray-400 text-sm font-medium whitespace-nowrap"
+                                    className="text-gray-400 text-sm font-medium truncate"
                                 >
                                     {placeholders[placeholderIndex]}
                                 </Motion.span>
@@ -188,7 +188,7 @@ const SearchBar = () => {
                         }}
                     >
                         {loading && (
-                            <Motion.div 
+                            <Motion.div
                                 className="p-8 text-center"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -205,7 +205,7 @@ const SearchBar = () => {
                         )}
 
                         {!loading && results.total === 0 && (
-                            <Motion.div 
+                            <Motion.div
                                 className="p-8 text-center"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -303,16 +303,16 @@ const SearchBar = () => {
     );
 };
 
-const SearchCategory = ({ 
-    title, 
-    icon, 
-    items, 
-    route, 
-    getSubtitle, 
-    onSelect, 
-    itemVariants, 
+const SearchCategory = ({
+    title,
+    icon,
+    items,
+    route,
+    getSubtitle,
+    onSelect,
+    itemVariants,
     categoryVariants,
-    index 
+    index
 }) => (
     <Motion.div
         custom={index}

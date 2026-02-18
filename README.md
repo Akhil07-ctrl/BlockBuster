@@ -18,7 +18,6 @@ A full-stack web application for discovering and booking movies, events, restaur
 - Slug-based routing & resolution
 - RESTful APIs
 - Brevo Node SDK (Email Service)
-- Twilio (WhatsApp Service)
 - Razorpay Node SDK
 
 ## 📦 Project Structure
@@ -53,7 +52,6 @@ BlockBuster/
   - **Lazy Loading**: High-performance image loading.
   - **Global Error Handling**: Smart fallbacks for missing images.
   - **Ticket-Style Emails**: Beautiful booking confirmations sent via Brevo.
-  - **WhatsApp Notifications**: Real-time booking alerts via Twilio.
 - **Responsive Design**: Mobile-first approach using Tailwind CSS.
 
 ## 🏃 Local Development
@@ -85,9 +83,6 @@ RAZORPAY_KEY_SECRET=...
 ADMIN_API_KEY=your_secret_admin_key
 EMAIL_USER=verified-sender@yourdomain.com
 BREVO_API_KEY=xkeysib-your-key-here
-TWILIO_ACCOUNT_SID=AC...
-TWILIO_AUTH_TOKEN=...
-TWILIO_WHATSAPP_NUMBER=whatsapp:+1...
 CLIENT_URL=http://localhost:5173
 ```
 

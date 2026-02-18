@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from '../context/LocationContext';
 import { fetchActivities } from '../api';
-import { Filter, Zap } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Filter, Zap, Compass } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import { FilterSection, Checkbox, FilterDrawer } from '../components/FilterComponents';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { handleImageError } from '../utils/imageUtils';
@@ -11,6 +12,8 @@ import Loader from '../components/Loader';
 
 const ActivitiesPage = () => {
     const { selectedCity } = useLocation();
+    const { isSignedIn } = useUser();
+    const navigate = useNavigate();
     const [activities, setActivities] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -210,7 +213,14 @@ const ActivitiesPage = () => {
                                                 visible: { opacity: 1, y: 0 }
                                             }}
                                         >
-                                            <Link to={`/activities/${activity._id}`} className="group block h-full">
+                                            <div onClick={(e) => {
+                                                e.preventDefault();
+                                                if (!isSignedIn) {
+                                                    navigate('/sign-in');
+                                                } else {
+                                                    navigate(`/activities/${activity._id}`);
+                                                }
+                                            }} className="group block h-full cursor-pointer">
                                                 <Motion.div
                                                     className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-md group-hover:shadow-xl transition-all h-full flex flex-col"
                                                     whileHover={{ y: -4 }}
@@ -248,7 +258,7 @@ const ActivitiesPage = () => {
                                                         </div>
                                                     </div>
                                                 </Motion.div>
-                                            </Link>
+                                            </div>
                                         </Motion.div>
                                     ))}
                                 </Motion.div>
@@ -267,9 +277,9 @@ const ActivitiesPage = () => {
                             )}
                         </AnimatePresence>
                     </Motion.div>
-                </div>
-            </div>
-        </Motion.div>
+                </div >
+            </div >
+        </Motion.div >
     );
 };
 

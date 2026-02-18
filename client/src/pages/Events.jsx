@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation } from '../context/LocationContext';
 import { fetchEvents } from '../api';
 import { Filter, Calendar } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import { FilterSection, Checkbox, FilterDrawer } from '../components/FilterComponents';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Loader from '../components/Loader';
@@ -10,6 +11,8 @@ import { handleImageError } from '../utils/imageUtils';
 
 const EventsPage = () => {
     const { selectedCity } = useLocation();
+    const { isSignedIn } = useUser();
+    const navigate = useNavigate();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -182,7 +185,14 @@ const EventsPage = () => {
                                                 visible: { opacity: 1, y: 0 }
                                             }}
                                         >
-                                            <Link to={`/events/${event._id}`} className="group block h-full">
+                                            <div onClick={(e) => {
+                                                e.preventDefault();
+                                                if (!isSignedIn) {
+                                                    navigate('/sign-in');
+                                                } else {
+                                                    navigate(`/events/${event._id}`);
+                                                }
+                                            }} className="group block h-full cursor-pointer">
                                                 <Motion.div
                                                     className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-md group-hover:shadow-xl transition-all h-full flex flex-col"
                                                     whileHover={{ y: -4 }}
@@ -219,7 +229,7 @@ const EventsPage = () => {
                                                         </div>
                                                     </div>
                                                 </Motion.div>
-                                            </Link>
+                                            </div>
                                         </Motion.div>
                                     ))}
                                 </Motion.div>

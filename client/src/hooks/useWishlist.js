@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { getWishlist, toggleWishlist as toggleWishlistApi } from '../api';
+import toast from 'react-hot-toast';
 
 export const useWishlist = (itemId, itemType) => {
     const { user, isLoaded } = useUser();
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState('');
 
     useEffect(() => {
         const checkWishlist = async () => {
@@ -17,7 +17,7 @@ export const useWishlist = (itemId, itemType) => {
 
             try {
                 const { data } = await getWishlist(user.id);
-                const found = data.some(item => 
+                const found = data.some(item =>
                     item.itemId === itemId && item.itemType === itemType
                 );
                 setIsWishlisted(found);
@@ -33,7 +33,7 @@ export const useWishlist = (itemId, itemType) => {
 
     const toggle = async () => {
         if (!user) {
-            setMessage('Please sign in to add to Hotlist');
+            toast.error('Please sign in to add to Hotlist');
             return;
         }
 
@@ -43,21 +43,17 @@ export const useWishlist = (itemId, itemType) => {
                 itemId,
                 itemType
             });
-            
-            const found = data.wishlist.some(item => 
+
+            const found = data.wishlist.some(item =>
                 item.itemId === itemId && item.itemType === itemType
             );
             setIsWishlisted(found);
-            setMessage(data.message);
-            
-            // Clear message after 3 seconds
-            setTimeout(() => setMessage(''), 3000);
+            toast.success(data.message);
         } catch (err) {
             console.error('Error toggling wishlist:', err);
-            setMessage('Failed to update Hotlist');
-            setTimeout(() => setMessage(''), 3000);
+            toast.error('Failed to update Hotlist');
         }
     };
 
-    return { isWishlisted, loading, toggle, message };
+    return { isWishlisted, loading, toggle };
 };

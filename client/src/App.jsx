@@ -1,5 +1,6 @@
 import { Routes, Route, Link, useLocation as useRouterLocation } from 'react-router-dom';
 import { useLocation } from './context/LocationContext';
+import { Toaster } from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Home from './pages/Home';
@@ -79,7 +80,7 @@ function App() {
   }, [isLoaded, user]);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <div className="min-h-screen flex flex-col font-sans relative">
       <AnimatePresence mode="wait">
         {loading && <Loader key="loader" />}
       </AnimatePresence>
@@ -281,6 +282,23 @@ function App() {
           </Routes>
         </SmoothScroll>
       </main>
+
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'rgba(17, 24, 39, 0.9)',
+            color: '#fff',
+            borderRadius: '16px',
+            padding: '12px 24px',
+            fontWeight: 'bold',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          },
+        }}
+      />
 
       <Footer />
     </div>

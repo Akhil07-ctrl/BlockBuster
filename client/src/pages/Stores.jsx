@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation } from '../context/LocationContext';
 import { fetchStores } from '../api';
 import { Filter, ShoppingBag } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import { FilterSection, Checkbox, FilterDrawer } from '../components/FilterComponents';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { Star } from 'lucide-react';
@@ -11,6 +12,8 @@ import { handleImageError } from '../utils/imageUtils';
 
 const StoresPage = () => {
     const { selectedCity } = useLocation();
+    const { isSignedIn } = useUser();
+    const navigate = useNavigate();
     const [stores, setStores] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -183,7 +186,14 @@ const StoresPage = () => {
                                                 visible: { opacity: 1, y: 0 }
                                             }}
                                         >
-                                            <Link to={`/stores/${store._id}`} className="group block h-full">
+                                            <div onClick={(e) => {
+                                                e.preventDefault();
+                                                if (!isSignedIn) {
+                                                    navigate('/sign-in');
+                                                } else {
+                                                    navigate(`/stores/${store._id}`);
+                                                }
+                                            }} className="group block h-full cursor-pointer">
                                                 <Motion.div
                                                     className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-md group-hover:shadow-xl transition-all h-full flex flex-col"
                                                     whileHover={{ y: -4 }}
@@ -220,7 +230,7 @@ const StoresPage = () => {
                                                         </div>
                                                     </div>
                                                 </Motion.div>
-                                            </Link>
+                                            </div>
                                         </Motion.div>
                                     ))}
                                 </Motion.div>

@@ -8,6 +8,7 @@ import { MapPin, Phone, Clock, DollarSign, Utensils, Star, ExternalLink, Minus, 
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../hooks/useWishlist';
 import { handleImageError } from '../utils/imageUtils';
+import toast from 'react-hot-toast';
 
 const RestaurantDetail = () => {
     const { id } = useParams();
@@ -20,7 +21,7 @@ const RestaurantDetail = () => {
     const [guests, setGuests] = useState(2);
     const [initialCity, setInitialCity] = useState(null);
 
-    const { isWishlisted, toggle, message: wishlistMessage } = useWishlist(id, 'Restaurant');
+    const { isWishlisted, toggle } = useWishlist(id, 'Restaurant');
 
     useEffect(() => {
         const getRestaurant = async () => {
@@ -193,23 +194,7 @@ const RestaurantDetail = () => {
                             <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
                         </Motion.button>
 
-                        <AnimatePresence>
-                            {wishlistMessage && (
-                                <Motion.div
-                                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-                                    className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100]"
-                                >
-                                    <div className="bg-gray-900/90 backdrop-blur-xl text-white px-6 py-3 rounded-2xl font-bold shadow-2xl border border-white/10 flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center">
-                                            <Heart size={16} fill="white" />
-                                        </div>
-                                        {wishlistMessage}
-                                    </div>
-                                </Motion.div>
-                            )}
-                        </AnimatePresence>
+
                     </div>
 
                     {restaurant.description && (
@@ -260,9 +245,15 @@ const RestaurantDetail = () => {
                         {restaurant.menu && (
                             <div className="flex items-center gap-2">
                                 <ExternalLink size={20} className="text-brand-500" />
-                                <a href={restaurant.menu} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline">
+                                <button
+                                    onClick={() => toast('Menu coming soon!', {
+                                        icon: <Utensils size={18} className="text-brand-500" />,
+                                        duration: 2500,
+                                    })}
+                                    className="text-brand-600 hover:underline cursor-pointer font-medium"
+                                >
                                     View Menu
-                                </a>
+                                </button>
                             </div>
                         )}
                     </div>

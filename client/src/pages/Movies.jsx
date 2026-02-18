@@ -2,82 +2,97 @@ import { useEffect, useState } from 'react';
 import { useLocation } from '../context/LocationContext';
 import { fetchMovies } from '../api';
 import { Filter, Film, X, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import { FilterSection, Checkbox, FilterDrawer } from '../components/FilterComponents';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Loader from '../components/Loader';
 import { handleImageError } from '../utils/imageUtils';
 
-const MovieCard = ({ movie }) => (
-    <Motion.div
-        variants={{
-            hidden: { opacity: 0, y: 30, scale: 0.95 },
-            visible: {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                transition: {
-                    duration: 0.5,
-                    ease: 'easeOut'
+const MovieCard = ({ movie }) => {
+    const { isSignedIn } = useUser();
+    const navigate = useNavigate();
+
+    const handleClick = (e) => {
+        e.preventDefault();
+        if (!isSignedIn) {
+            navigate('/sign-in');
+        } else {
+            navigate(`/movies/${movie._id}`);
+        }
+    };
+
+    return (
+        <Motion.div
+            variants={{
+                hidden: { opacity: 0, y: 30, scale: 0.95 },
+                visible: {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    transition: {
+                        duration: 0.5,
+                        ease: 'easeOut'
+                    }
                 }
-            }
-        }}
-    >
-        <Link to={`/movies/${movie._id}`} className="group block h-full">
-            <Motion.div
-                className="relative rounded-2xl overflow-hidden shadow-lg mb-4 aspect-[3/4] bg-gray-200"
-                whileHover={{ y: -8 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            >
-                <img
-                    src={movie.poster || 'https://placehold.co/300x450'}
-                    alt={movie.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => handleImageError(e, 'movie')}
-                    loading="lazy"
-                />
+            }}
+        >
+            <div onClick={handleClick} className="group block h-full cursor-pointer">
                 <Motion.div
-                    className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-60 group-hover:opacity-80"
-                    transition={{ duration: 0.3 }}
-                ></Motion.div>
-
-                {movie.rating && (
-                    <Motion.div
-                        className="absolute top-3 right-3 bg-black/70 backdrop-blur-md text-white px-3 py-1 rounded-lg flex items-center gap-1 text-xs font-bold border border-white/20"
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        whileInView={{ scale: 1, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2, type: 'spring' }}
-                    >
-                        <Star size={12} fill="currentColor" className="text-yellow-400" />
-                        {movie.rating}
-                    </Motion.div>
-                )}
-
-                <Motion.div
-                    className="absolute inset-0 flex items-end justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="relative rounded-2xl overflow-hidden shadow-lg mb-4 aspect-[3/4] bg-gray-200"
+                    whileHover={{ y: -8 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 >
-                    <Motion.button
-                        className="w-full py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg font-bold text-sm"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        Book Now
-                    </Motion.button>
-                </Motion.div>
-            </Motion.div>
+                    <img
+                        src={movie.poster || 'https://placehold.co/300x450'}
+                        alt={movie.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => handleImageError(e, 'movie')}
+                        loading="lazy"
+                    />
+                    <Motion.div
+                        className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-60 group-hover:opacity-80"
+                        transition={{ duration: 0.3 }}
+                    ></Motion.div>
 
-            <Motion.div whileHover={{ y: -2 }}>
-                <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2 group-hover:text-brand-600 transition-colors mb-1">
-                    {movie.title}
-                </h3>
-                <p className="text-xs text-gray-500 line-clamp-1">
-                    {movie.genre?.join(', ')}
-                </p>
-            </Motion.div>
-        </Link>
-    </Motion.div>
-);
+                    {movie.rating && (
+                        <Motion.div
+                            className="absolute top-3 right-3 bg-black/70 backdrop-blur-md text-white px-3 py-1 rounded-lg flex items-center gap-1 text-xs font-bold border border-white/20"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            whileInView={{ scale: 1, opacity: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.2, type: 'spring' }}
+                        >
+                            <Star size={12} fill="currentColor" className="text-yellow-400" />
+                            {movie.rating}
+                        </Motion.div>
+                    )}
+
+                    <Motion.div
+                        className="absolute inset-0 flex items-end justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        <Motion.button
+                            className="w-full py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg font-bold text-sm"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            Book Now
+                        </Motion.button>
+                    </Motion.div>
+                </Motion.div>
+
+                <Motion.div whileHover={{ y: -2 }}>
+                    <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2 group-hover:text-brand-600 transition-colors mb-1">
+                        {movie.title}
+                    </h3>
+                    <p className="text-xs text-gray-500 line-clamp-1">
+                        {movie.genre?.join(', ')}
+                    </p>
+                </Motion.div>
+            </div>
+        </Motion.div>
+    );
+};
 
 const MoviesPage = () => {
     const { selectedCity } = useLocation();
